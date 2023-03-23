@@ -23,7 +23,9 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "pnpm build && node list/index",
+    "dev": "pnpm build && node lib/index",
+    "deploy:guild:create": "node lib/deploy-guild.js create",
+    "deploy:guild:delete": "node lib/deploy-guild.js delete",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "prepublish": "npm run build"
   },

@@ -1,7 +1,9 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { ChannelType, Client, Collection } from 'discord.js';
+import { CacheType, ChannelType, ChatInputCommandInteraction, Client, Collection } from 'discord.js';
 import { config } from 'dotenv';
+import { createConfig, Config } from './create/config';
+import { createUser, UserDB } from './create/user'
 config({ path: './secrets/.env' });
 
 export function defineCommands(c: Client) {
@@ -24,4 +26,32 @@ export async function submitError(err: any, c: Client) {
 		console.log('Unable to get Error Channel.');
 		return console.error(err);
 	}
+}
+
+export async function findUser(userId: string, i: ChatInputCommandInteraction<CacheType>, c: Client, options: {isKiller: boolean, isVictim: boolean}) {
+	let user = await UserDB.findOne({where: { id: userId }});
+	if (!user) {
+		try {
+			await createUser(userId, i.guild?.id as string, options);
+			return user = await UserDB.findOne({where: { id: userId }});
+		} catch (err) {
+			i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
+			return submitError(err, c);
+		}
+	}
+	return user;
+}
+
+export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client) {
+	let config = await Config.findOne({ where: { server: i.guild?.id } });
+	if (!config) {
+		try {
+			await createConfig(i.guild?.id as string);
+			return config = await Config.findOne({ where: { server: i.guild?.id } });
+		} catch (err) {
+			await i.reply('There was an error creating the Server Config.');
+			return submitError(err, c);
+		}
+	}
+	return config;
 }

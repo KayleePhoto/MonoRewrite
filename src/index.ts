@@ -1,5 +1,5 @@
 import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
-import { defineCommands, submitError } from './functions';
+import { defineCommands, findUser, serverConfig, submitError } from './functions';
 import { config } from 'dotenv';
 config({ path: './secrets/.env' });
 
@@ -27,10 +27,8 @@ client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;
 
-	// TODO: Use a function called "doesUserExist" to find user data in database,
-	// TODO: without having to make massive if statements to handle creation and errors.
-	// * doesUserExist('<id>')
-	// ! I'm working on it, go away.
+	await findUser(interaction.user.id, interaction, client, {isKiller: false, isVictim: false});
+	await serverConfig(interaction, client);
 
 	try {
 		await command.execute(interaction, client);
