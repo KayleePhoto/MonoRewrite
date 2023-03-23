@@ -1,0 +1,41 @@
+{
+  "name": "MonoRewrite",
+  "version": "1.0.0",
+  "description": "A special bot made by two close friends named Kaylee and Jackel.",
+  "main": "./lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KayleePhoto/Monokubs.git"
+  },
+  "author": {
+    "name": "KayleePhoto and Jackel"
+  },
+  "license": "GNU 3.0",
+  "private": false,
+  "bugs": {
+    "url": "https://github.com/KayleePhoto/Monokubs/issues"
+  },
+  "homepage": "https://github.com/KayleePhoto/Monokubs#readme",
+  "files": [
+    "./bin/*",
+    "./lib/*"
+  ],
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "pnpm build && node list/index",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "chart.js": "^4.2.1",
+    "chartjs-node-canvas": "^4.1.6",
+    "discord.js": "^14.8.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.36.0",
+    "mysql2": "^3.2.0",
+    "sequelize": "^6.29.3",
+    "typescript": "^5.0.2",
+    "uuid": "^9.0.0"
+  }
+}
