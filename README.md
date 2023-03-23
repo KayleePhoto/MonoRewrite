@@ -38,7 +38,6 @@ I'M STILL WORKING ON THIS
 	# Guild
 	client_id = '<Client ID from https://discord.com/developers/applications>'
 	```
-	To be clear, the extension I use to screenshot code, is well, buggy.
 - run SQL scripts, to create a MySql Tables. **Not available yet**
 - run `pnpm build` and `pnpm deploy:guild:create` | **see [Package.json](package.json) scripts**  
 **Keep in mind, the `/build` folder. This folder will also need your `.env` in `/secrets`**
