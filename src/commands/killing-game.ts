@@ -6,12 +6,12 @@ import {setTimeout as wait} from "node:timers/promises";
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("vote")
-		.setDescription("Being the voting phase!")
+		.setName("kill")
+		.setDescription("Being the killing game!")
 		.setDMPermission(false)
 		.addUserOption((option) =>
 			option.setName('target')
-			.setDescription('The user you want to vote as the killer.')
+			.setDescription('The user you want to kill.')
 			.setRequired(true)
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
@@ -56,6 +56,7 @@ module.exports = {
 		}
 
 		try {
+			// ? Make database update function??? so remove the need for reinit?
 			await killer.update({ isKiller: true, gameServer: i.guild.id});
 			killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
