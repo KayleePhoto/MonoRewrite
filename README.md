@@ -35,10 +35,9 @@ I'M STILL WORKING ON THIS
 	channel	= '<Error Channel ID>'
 	author	= '<Your user ID>' # for pings on errors
 	# Deploy Commands
-	# Guild
 	client_id = '<Client ID from https://discord.com/developers/applications>'
 	```
-- run SQL scripts, to create a MySql Tables. **Not available yet**
+- run sql scripts | `mysql> source (path to bot)/src/database/db.sql`
 - run `pnpm build` and `pnpm deploy:guild:create` | **see [Package.json](package.json) scripts**  
 **Keep in mind, the `/build` folder. This folder will also need your `.env` in `/secrets`**
 - run `pnpm dev` and enjoy

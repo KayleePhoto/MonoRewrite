@@ -21,7 +21,7 @@ export async function submitError(err: any, c: Client) {
 	const server		= c.guilds.cache.get(process.env.server as string);
 	const errorChannel	= server?.channels.cache.get(process.env.channel as string);
 	if (errorChannel?.type === ChannelType.GuildText) {
-		return await errorChannel.send(`<@${process.env.author}>\nError!\n\`\`\`fix\n${err}\n\`\`\``);
+		return await errorChannel.send(`<@${process.env.author as string}>\nError!\n\`\`\`fix\n${err}\n\`\`\``);
 	} else {
 		console.log('Unable to get Error Channel.');
 		return console.error(err);
@@ -35,7 +35,7 @@ export async function findUser(userId: string, i: ChatInputCommandInteraction<Ca
 			await createUser(userId, options as {isKiller: boolean, isVictim: boolean});
 			return user = await UserDB.findOne({where: { id: userId }});
 		} catch (err) {
-			i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
+			await i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
 			return submitError(err, c);
 		}
 	}
