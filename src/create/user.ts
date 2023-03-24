@@ -44,12 +44,12 @@ UserDB.init({
 	createdAt: false
 });
 
-export async function createUser(id: string, server: string, options?: {isKiller: boolean, isVictim: boolean}) {
+export async function createUser(id: string, options?: {isKiller: boolean, isVictim: boolean, server?: string}) {
   	const user: any = new UserDB({
 		id: id,
 		isKiller: options?.isKiller,
 		isVictim: options?.isVictim,
-		gameServer: server
+		gameServer: options?.server
 	});
   	await user.save();
 }

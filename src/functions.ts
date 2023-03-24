@@ -28,18 +28,18 @@ export async function submitError(err: any, c: Client) {
 	}
 }
 
-export async function findUser(userId: string, i: ChatInputCommandInteraction<CacheType>, c: Client, options: {isKiller: boolean, isVictim: boolean}) {
+export async function findUser(userId: string, i: ChatInputCommandInteraction<CacheType>, c: Client, options?: {id?: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
 	let user = await UserDB.findOne({where: { id: userId }});
 	if (!user) {
 		try {
-			await createUser(userId, i.guild?.id as string, options);
+			await createUser(userId, options as {isKiller: boolean, isVictim: boolean});
 			return user = await UserDB.findOne({where: { id: userId }});
 		} catch (err) {
 			i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
 			return submitError(err, c);
 		}
 	}
-	return user;
+	return await UserDB.findOne({where: options});
 }
 
 export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client) {
@@ -54,4 +54,16 @@ export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c:
 		}
 	}
 	return config;
+}
+
+export async function sortRandomImages(imgpath: string) {
+	const images = [];
+	const imagesPath = path.join(__dirname, `resources/${imgpath}`);
+	const imageFiles = fs
+		.readdirSync(imagesPath)
+		.filter((file) => file.endsWith(".gif"));
+	for (const image of imageFiles) {
+		images.push(image);
+	}
+	return images[Math.floor(Math.random() * images.length)];
 }

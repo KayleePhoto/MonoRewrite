@@ -105,3 +105,6 @@ dist
 
 # pnpm-lock
 pnpm-lock.yaml
+
+# Build folder
+build/
