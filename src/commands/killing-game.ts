@@ -17,7 +17,7 @@ module.exports = {
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		let target = i.options.getUser('target');
 		let targetInGuild = i.guild?.members.cache.get(target?.id as string);
-		let config = serverConfig(i, c) as unknown as Config;
+		let config = await serverConfig(i, c) as Config;
 
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
 		const role = config['dataValues'].role;
@@ -45,8 +45,8 @@ module.exports = {
 				ephemeral: true
 			});
 
-		let targetUser = await findUser(target?.id as string, i, c, {id: target?.id as string, isKiller: false, isVictim: true, server: i.guild.id}) as UserDB;
-		let killer = await findUser(i.user?.id, i, c, {id: i.user?.id}) as UserDB;
+		let targetUser = await findUser(i, c, {id: target?.id as string, isKiller: false, isVictim: true, server: i.guild.id}) as UserDB;
+		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
 		if (targetUser["dataValues"].isVictim === true) {
 			return i.reply({
@@ -57,7 +57,7 @@ module.exports = {
 
 		try {
 			await killer.update({ isKiller: true, gameServer: i.guild.id});
-			killer = await findUser(i.user?.id, i, c, {id: i.user?.id}) as UserDB;
+			killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
 			await gameChannel.send({
 				content: `**Game start** || ${config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : i.guild?.roles.cache.get(config["dataValues"].role)?.name + `\n*Enable role ping with \`/config (channel) (role) true\`*`}\n\n**${target?.username}** has been found dead. As you know, sometime after the body has been discovered, a class trial will start.\nSo, feel free to investigate in the mean time.\n*(10 minutes, this is to class trial start. You can take as long as you need.)*`,

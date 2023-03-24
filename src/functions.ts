@@ -28,29 +28,29 @@ export async function submitError(err: any, c: Client) {
 	}
 }
 
-export async function findUser(userId: string, i: ChatInputCommandInteraction<CacheType>, c: Client, options?: {id?: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
-	let user = await UserDB.findOne({where: { id: userId }});
+export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
+	let user = await UserDB.findOne({where: { id: options.id }});
 	if (!user) {
 		try {
-			await createUser(userId, options as {isKiller: boolean, isVictim: boolean});
-			return user = await UserDB.findOne({where: { id: userId }});
+			await createUser(options.id, options as {isKiller: boolean, isVictim: boolean});
+			return user = await UserDB.findOne({where: { id: options.id }});
 		} catch (err) {
 			await i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
-			return submitError(err, c);
+			return submitError(err, c).then(() => {return;});
 		}
 	}
-	return await UserDB.findOne({where: options});
+	return user;
 }
 
 export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client) {
-	let config = await Config.findOne({ where: { server: i.guild?.id } });
+	let config = await Config.findOne({ where: { server: i.guild?.id as string } });
 	if (!config) {
 		try {
 			await createConfig(i.guild?.id as string);
-			return config = await Config.findOne({ where: { server: i.guild?.id } });
+			return config = await Config.findOne({ where: { server: i.guild?.id as string } });
 		} catch (err) {
-			await i.reply('There was an error creating the Server Config.');
-			return submitError(err, c);
+			await i.reply({content: 'There was an error creating the Server Config.', ephemeral: true});
+			await submitError(err, c).then(() => {return;});
 		}
 	}
 	return config;

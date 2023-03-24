@@ -27,7 +27,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;
 
-	await findUser(interaction.user.id, interaction, client, {isKiller: false, isVictim: false});
+	await findUser(interaction, client, {id: interaction.user.id, isKiller: false, isVictim: false});
 	await serverConfig(interaction, client);
 
 	try {

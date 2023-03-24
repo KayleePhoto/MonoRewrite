@@ -1,4 +1,4 @@
-import { CacheType, ChannelType, ChatInputCommandInteraction, Client, PermissionFlagsBits, SlashCommandBuilder, TextChannel } from "discord.js";
+import { CacheType, ChannelType, ChatInputCommandInteraction, Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { serverConfig } from "../functions";
 import { Config } from "../create/config";
 
@@ -24,9 +24,8 @@ module.exports = {
 		let role	= i.options.getRole('game-role');
 		let channel	= i.options.getChannel('channel');
 		let ping	= i.options.getBoolean('ping-role');
-		let config	= serverConfig(i, c) as unknown as Config;
+		let config	= await serverConfig(i, c) as Config;
 
-		console.log(channel as TextChannel);
 		if (channel?.type !== ChannelType.GuildText)
 			return i.reply({
 				content: 'Please make sure this is a TextChannel.'
