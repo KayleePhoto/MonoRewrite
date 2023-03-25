@@ -31,7 +31,7 @@ module.exports = {
 		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || targetInGuild?.roles.cache.get(role)) {
 			let gameRole = i.guild?.roles.cache.get(role);
 			return i.reply({
-				content: !targetInGuild?.roles.cache.get(config["dataValues"]) ? `${target?.username} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
+				content: !targetInGuild?.roles.cache.get(config["dataValues"].role) ? `${target?.username} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
 				ephemeral: true
 			});
 		}
