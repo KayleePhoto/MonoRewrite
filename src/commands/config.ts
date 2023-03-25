@@ -16,7 +16,7 @@ module.exports = {
 			.setRequired(true)
 		).addBooleanOption((option) =>
 			option.setName('ping-role')
-			.setDescription('Enable or Disable game role ping.')
+			.setDescription('Enable or Disable game role ping. | Default: True')
 		).setDMPermission(false).setDefaultMemberPermissions(
 			PermissionFlagsBits.KickMembers + PermissionFlagsBits.BanMembers
 		),
@@ -31,6 +31,7 @@ module.exports = {
 				content: 'Please make sure this is a TextChannel.'
 			});
 		}
+		if (!ping) { ping = true; };
 		
 		await config.update({
 			channel: channel.id,

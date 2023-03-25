@@ -22,8 +22,8 @@ module.exports = {
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		// ? Make neater? if possible?
-		let killer = await findUser(i, c, {server: i.guild?.id, isKiller: true}) as UserDB;
-		let victim = await findUser(i, c, {server: i.guild?.id, isVictim: true}) as UserDB;
+		let killer = await findUser(i, c, {gameServer: i.guild?.id, isKiller: true}) as UserDB;
+		let victim = await findUser(i, c, {gameServer: i.guild?.id, isVictim: true}) as UserDB;
 		let voter = await findUser(i, c, {id: i.user.id}) as UserDB;
 		const config = await serverConfig(i, c) as Config;
 		const target = i.guild?.members.cache.get(i.options.getUser('target')?.id as string) as GuildMember;

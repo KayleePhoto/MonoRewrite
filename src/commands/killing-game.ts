@@ -48,7 +48,7 @@ module.exports = {
 			});
 		}
 
-		let targetUser = await findUser(i, c, {id: target?.id as string, isKiller: false, isVictim: true, server: i.guild.id}) as UserDB;
+		let targetUser = await findUser(i, c, {id: target?.id as string, isKiller: false, isVictim: true, gameServer: i.guild.id}) as UserDB;
 		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
 		if (targetUser["dataValues"].isVictim === true) {

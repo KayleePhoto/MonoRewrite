@@ -29,7 +29,7 @@ export async function submitError(err: any, c: Client) {
 }
 
 // TODO: Rewrite this to be more useable as a "find user" instead of mostly just a create user.
-export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
+export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string}) {
 	let user = await UserDB.findOne({where: options});
 	if (!user) {
 		try {
