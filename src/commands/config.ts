@@ -1,4 +1,4 @@
-import { CacheType, ChannelType, ChatInputCommandInteraction, Client, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { CacheType, ChannelType, ChatInputCommandInteraction, Client, EmbedBuilder, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { serverConfig } from "../functions";
 import { Config } from "../create/config";
 
@@ -26,10 +26,11 @@ module.exports = {
 		let ping	= i.options.getBoolean('ping-role');
 		let config	= await serverConfig(i, c) as Config;
 
-		if (channel?.type !== ChannelType.GuildText)
+		if (channel?.type !== ChannelType.GuildText) {
 			return i.reply({
 				content: 'Please make sure this is a TextChannel.'
 			});
+		}
 		
 		await config.update({
 			channel: channel.id,
@@ -38,7 +39,24 @@ module.exports = {
 		});
 
 		return await i.reply({
-			content: `Channel has been set to **${channel}**\nGame Role has been set to: **${role}** (Ping ${ping === true ? 'Enabled' : 'Disabled'})`
+			embeds: [
+				new EmbedBuilder({
+					title: 'Server Config',
+					fields: [{
+						name: 'Channel',
+						value: `${channel}`,
+						inline: true
+					},{
+						name: 'Role',
+						value: `${role?.name}`,
+						inline: true
+					},{
+						name: 'Pingable',
+						value: ping === true ? 'Enabled' : 'Disabled',
+						inline: true
+					}]
+				})
+			]
 		});
 	}
 }

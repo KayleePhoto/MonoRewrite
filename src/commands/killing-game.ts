@@ -22,11 +22,12 @@ module.exports = {
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
 		const role = config['dataValues'].role;
 
-		if (!gameChannel || !role)
+		if (!gameChannel || !role) {
 			return i.reply({
 				content: 'Please make sure that the Game Channel and Game Role are set in `/config`',
 				ephemeral: false
 			});
+		}
 		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || targetInGuild?.roles.cache.get(role)) {
 			let gameRole = i.guild?.roles.cache.get(role);
 			return i.reply({
@@ -34,16 +35,18 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		if (config['dataValues'].hasGame === true)
+		if (config['dataValues'].hasGame === true) {
 			return i.reply({
 				content: 'There is already a game happening in this server.',
 				ephemeral: true
 			});
-		if (i.user.id === target?.id)
+		}
+		if (i.user.id === target?.id) {
 			return i.reply({
 				content: 'You can not kill yourself.',
 				ephemeral: true
 			});
+		}
 
 		let targetUser = await findUser(i, c, {id: target?.id as string, isKiller: false, isVictim: true, server: i.guild.id}) as UserDB;
 		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
@@ -56,7 +59,7 @@ module.exports = {
 		}
 
 		try {
-			// ? Make database update function??? so remove the need for reinit?
+			// ? Make database update function??? to remove the need for reinit?
 			await killer.update({ isKiller: true, gameServer: i.guild.id});
 			killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
