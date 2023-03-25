@@ -66,7 +66,7 @@ module.exports = {
 			await gameChannel.send({
 				content: `**Game start** || ${config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : i.guild?.roles.cache.get(config["dataValues"].role)?.name + `\n*Enable role ping with \`/config (channel) (role) true\`*`}\n\n**${target?.username}** has been found dead. As you know, sometime after the body has been discovered, a class trial will start.\nSo, feel free to investigate in the mean time.\n*(10 minutes, this is to class trial start. You can take as long as you need.)*`,
 				files: [{
-					attachment: `/resources/class-trial/${sortRandomImages('body')}`,
+					attachment: `src/resources/class-trial/${sortRandomImages('body')}`,
 					name: 'SPOILER_Body.png',
 					description: 'A dead body. | *Descriptive, I know.*'
 				}]
@@ -88,7 +88,7 @@ module.exports = {
 		return await gameChannel.send({
 			content: '**The class trial is starting!!**\nEveryone take your seats and prepare your arguments!',
 			files: [{
-				attachment: `resources/class-trial/${sortRandomImages('class-trial')}`,
+				attachment: `src/resources/class-trial/${sortRandomImages('class-trial')}`,
 				name: 'Trial.png',
 				description: 'The trial has begun!'
 			}]

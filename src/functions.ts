@@ -28,12 +28,13 @@ export async function submitError(err: any, c: Client) {
 	}
 }
 
-export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
-	let user = await UserDB.findOne({where: { id: options.id }});
+// TODO: Rewrite this to be more useable as a "find user" instead of mostly just a create user.
+export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, server?: string}) {
+	let user = await UserDB.findOne({where: options});
 	if (!user) {
 		try {
-			await createUser(options.id, options as {isKiller: boolean, isVictim: boolean});
-			return user = await UserDB.findOne({where: { id: options.id }});
+			await createUser(i.user.id, options as {isKiller: boolean, isVictim: boolean});
+			return user = await UserDB.findOne({where: { id: i.user.id }});
 		} catch (err) {
 			await i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
 			return submitError(err, c).then(() => {return;});
@@ -50,7 +51,7 @@ export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c:
 			return config = await Config.findOne({ where: { server: i.guild?.id as string } });
 		} catch (err) {
 			await i.reply({content: 'There was an error creating the Server Config.', ephemeral: true});
-			await submitError(err, c).then(() => {return;});
+			return submitError(err, c).then(() => {return;});
 		}
 	}
 	return config;
