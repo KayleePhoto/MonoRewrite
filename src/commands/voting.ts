@@ -22,12 +22,19 @@ module.exports = {
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		// ? Make neater? if possible?
-		let killer = await findUser(i, c, {gameServer: i.guild?.id, isKiller: true}) as UserDB;
-		let victim = await findUser(i, c, {gameServer: i.guild?.id, isVictim: true}) as UserDB;
-		let voter = await findUser(i, c, {id: i.user.id}) as UserDB;
 		const config = await serverConfig(i, c) as Config;
 		const target = i.guild?.members.cache.get(i.options.getUser('target')?.id as string) as GuildMember;
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
+		if (!target.roles.cache.get(config["dataValues"].role)) {
+			return i.reply({
+				content: 'This user does not have the game role. They could not have killed.',
+				ephemeral: true
+			});
+		}
+
+		let killer = await findUser(i, c, {gameServer: i.guild?.id as string, isKiller: true}) as UserDB;
+		let victim = await findUser(i, c, {gameServer: i.guild?.id as string, isVictim: true}) as UserDB;
+		let voter = await findUser(i, c, {id: i.user.id}) as UserDB;
 
 		if (config["dataValues"].started === false) {
 			return i.reply({
@@ -40,9 +47,12 @@ module.exports = {
 				content: 'You are the victim, you are unable to vote.'
 			});
 		}
-		
+		console.log(config["dataValues"]) // ! Debug
+		// TODO: Fix this, it continue code and starts another voting phase instead of checking preexisting and marking it as "you already voted"
+		// ! Will also not work other other users as well, as it will mark them as the started, essentially.
+		// ! Seems to not care about the isVoting check.
 		if (config["dataValues"].isVoting === true) {
-			return addVotesToPreexisting(config["dataValues"].votedKillers, target, i, config);
+			return await addVotesToPreexisting(config["dataValues"].votedKillers, target, i, config);
 		}
 
 		try {
@@ -89,14 +99,14 @@ module.exports = {
 					: vote.name
 				} has been voted out...`,
 				files: [{
-					attachment: `src/temp/chart-${globalUUID}.png`,
+					attachment: `build/temp/chart-${globalUUID}.png`,
 					name: 'chart.png'
 				}]
 			});
 
 			try {
-				fs.unlinkSync(`src/temp/chart-${globalUUID}.png`);
-				console.info('File Removed: ', `src/temp/chart-${globalUUID}.png`);
+				fs.unlinkSync(`build/temp/chart-${globalUUID}.png`);
+				console.info('File Removed: ', `build/temp/chart-${globalUUID}.png`);
 			} catch (err) {
 				submitError(err, c);
 			}
@@ -106,7 +116,7 @@ module.exports = {
 				await gameChannel.send({
 					content: 'Sounds like you found the guilty.\n Let\'s give\'em our all!\nIt\'s punishment time!',
 					files: [{
-						attachment: `src/resources/punishment/${sortRandomImages('punishment')}`,
+						attachment: `build/resources/punishment/${sortRandomImages('punishment')}`,
 						name: 'SPOILER_Punishment.gif',
 						description: 'This Killer\'s Punishment.'
 					}]
@@ -120,7 +130,7 @@ module.exports = {
 				await gameChannel.send({
 					content: `Seems like you were wrong... Now you'll receive the ultimate punishment!\nThe killer was: ${i.guild?.members.cache.get(killer["dataValues"].id)}`,
 					files: [{
-						attachment: `src/resources/punishment/${sortRandomImages('punishment')}`,
+						attachment: `build/resources/punishment/${sortRandomImages('punishment')}`,
 						name: "SPOILER_Punishment.gif",
 						description: 'The Accuser\'s Punishment.'
 					}]
@@ -136,13 +146,14 @@ module.exports = {
 				gameServer: null,
 				victim: victim["dataValues"].victim + 1
 			});
-		} catch {
+		} catch (e) {
 			await config.update({
 				isVoting: false,
 				hasGame: true,
 				started: true,
 				votedKillers: null
 			});
+			return submitError(e, c);
 		}
 	}
 }
@@ -262,8 +273,7 @@ async function makeChart(JSON: any) {
 				},
 			},
 		},
-		plugins: [
-			{
+		plugins: [{
 			id: "custom_canvas_background_color",
 			beforeDraw: (chart: { width?: any; height?: any; ctx?: any; }) => {
 				const { ctx } = chart;
@@ -272,9 +282,8 @@ async function makeChart(JSON: any) {
 				ctx.fillStyle = "#202020";
 				ctx.fillRect(0, 0, chart.width, chart.height);
 				ctx.restore();
-				},
-			},
-		],
+			}
+		}],
 	};
 	
 	
@@ -285,6 +294,6 @@ async function makeChart(JSON: any) {
 	const width = 1440, height = 1440;
 	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
 	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration, 'image/png');
-	fs.writeFile(`./src/temp/temp-${tempUUID}.png`, buffer, (err) => console.error(err));
+	fs.writeFile(`./build/temp/temp-${tempUUID}.png`, buffer, (err) => console.error(err));
 	globalUUID = tempUUID;
 }

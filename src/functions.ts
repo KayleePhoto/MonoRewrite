@@ -21,7 +21,7 @@ export async function submitError(err: any, c: Client) {
 	const server		= c.guilds.cache.get(process.env.server as string);
 	const errorChannel	= server?.channels.cache.get(process.env.channel as string);
 	if (errorChannel?.type === ChannelType.GuildText) {
-		return await errorChannel.send(`<@${process.env.author as string}>\nError!\n\`\`\`fix\n${err}\n\`\`\``);
+		return await errorChannel.send(`<@${process.env.author as string}>\n\`\`\`fix\n${err}\n\`\`\``);
 	} else {
 		console.log('Unable to get Error Channel.');
 		return console.error(err);
@@ -29,12 +29,12 @@ export async function submitError(err: any, c: Client) {
 }
 
 // TODO: Rewrite this to be more useable as a "find user" instead of mostly just a create user.
-export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string}) {
+export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string | null}) {
 	let user = await UserDB.findOne({where: options});
 	if (!user) {
 		try {
-			await createUser(i.user.id, options as {isKiller: boolean, isVictim: boolean});
-			return user = await UserDB.findOne({where: { id: i.user.id }});
+			await createUser(options.id as string, options as {isKiller: boolean, isVictim: boolean, gameServer: string | null});
+			return await UserDB.findOne({where: {id: options.id}});
 		} catch (err) {
 			await i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
 			return submitError(err, c).then(() => {return;});
@@ -61,8 +61,7 @@ export async function sortRandomImages(imgpath: string) {
 	const images = [];
 	const imagesPath = path.join(__dirname, `resources/${imgpath}`);
 	const imageFiles = fs
-		.readdirSync(imagesPath)
-		.filter((file) => file.endsWith(".gif"));
+		.readdirSync(imagesPath);
 	for (const image of imageFiles) {
 		images.push(image);
 	}

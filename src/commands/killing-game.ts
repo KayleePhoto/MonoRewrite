@@ -1,5 +1,5 @@
-import { CacheType, ChatInputCommandInteraction, Client, SlashCommandBuilder, TextChannel } from "discord.js";
-import { findUser, serverConfig, sortRandomImages } from "../functions";
+import { CacheType, ChatInputCommandInteraction, Client, SlashCommandBuilder, TextChannel, User } from "discord.js";
+import { findUser, serverConfig, sortRandomImages, submitError } from "../functions";
 import { Config } from "../create/config";
 import { UserDB } from "../create/user";
 import {setTimeout as wait} from "node:timers/promises";
@@ -15,8 +15,8 @@ module.exports = {
 			.setRequired(true)
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
-		let target = i.options.getUser('target');
-		let targetInGuild = i.guild?.members.cache.get(target?.id as string);
+		let target = i.options.getUser('target') as User;
+		let targetInGuild = i.guild?.members.cache.get(target.id);
 		let config = await serverConfig(i, c) as Config;
 
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
@@ -28,10 +28,16 @@ module.exports = {
 				ephemeral: false
 			});
 		}
-		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || targetInGuild?.roles.cache.get(role)) {
+		if (!targetInGuild || target.bot) {
+			return i.reply({
+				content: 'This user is either a bot or does not exist in the guild.',
+				ephemeral: true
+			});
+		}
+		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || !targetInGuild?.roles.cache.get(role)) {
 			let gameRole = i.guild?.roles.cache.get(role);
 			return i.reply({
-				content: !targetInGuild?.roles.cache.get(config["dataValues"].role) ? `${target?.username} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
+				content: !targetInGuild?.roles.cache.get(config["dataValues"].role) ? `${target.username} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
 				ephemeral: true
 			});
 		}
@@ -41,19 +47,25 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		if (i.user.id === target?.id) {
+		if (i.user.id === target.id) {
 			return i.reply({
 				content: 'You can not kill yourself.',
 				ephemeral: true
 			});
 		}
 
-		let targetUser = await findUser(i, c, {id: target?.id as string, isKiller: false, isVictim: true, gameServer: i.guild.id}) as UserDB;
+		
+		let targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
 		if (targetUser["dataValues"].isVictim === true) {
 			return i.reply({
 				content: 'This user is already in a killing game.',
+				ephemeral: true
+			});
+		} else if (killer["dataValues"].isKiller === true) {
+			return i.reply({
+				content: 'You are already in a game.',
 				ephemeral: true
 			});
 		}
@@ -62,33 +74,36 @@ module.exports = {
 			// ? Make database update function??? to remove the need for reinit?
 			await killer.update({ isKiller: true, gameServer: i.guild.id});
 			killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
+			await targetUser.update({ isVictim: true, gameServer: i.guild.id});
+			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 
 			await gameChannel.send({
-				content: `**Game start** || ${config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : i.guild?.roles.cache.get(config["dataValues"].role)?.name + `\n*Enable role ping with \`/config (channel) (role) true\`*`}\n\n**${target?.username}** has been found dead. As you know, sometime after the body has been discovered, a class trial will start.\nSo, feel free to investigate in the mean time.\n*(10 minutes, this is to class trial start. You can take as long as you need.)*`,
+				content: `**Game start** || ${config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : i.guild?.roles.cache.get(config["dataValues"].role)?.name + `\n*Enable role ping with \`/config (channel) (role) true\`*`}\n\n**${target.username}** has been found dead. As you know, sometime after the body has been discovered, a class trial will start.\nSo, feel free to investigate in the mean time.\n*(10 minutes, this is to class trial start. You can take as long as you need.)*`,
 				files: [{
-					attachment: `src/resources/class-trial/${sortRandomImages('body')}`,
+					attachment: `build/resources/body/${await sortRandomImages('body')}`,
 					name: 'SPOILER_Body.png',
 					description: 'A dead body. | *Descriptive, I know.*'
 				}]
 			});
 
 			await i.deferReply({ephemeral: true});
-			await wait(1000 * 60 * 10);
 			await config.update({ hasGame: true, started: true });
-		} catch {
+			await wait(1000 * 60 * 10);
+		} catch (e) {
 			await config.update({hasGame: false, started: false});
 			await killer.update({isKiller: false, gameServer: null});
 			await targetUser.update({isVictim: false, gameServer: null});
-			return await i.reply({
+			await i.reply({
 				content: 'There was an error with the game.',
 				ephemeral: true
 			});
+			return await submitError(e, c);
 		}
 
 		return await gameChannel.send({
 			content: '**The class trial is starting!!**\nEveryone take your seats and prepare your arguments!',
 			files: [{
-				attachment: `src/resources/class-trial/${sortRandomImages('class-trial')}`,
+				attachment: `build/resources/class-trial/${await sortRandomImages('class-trial')}`,
 				name: 'Trial.png',
 				description: 'The trial has begun!'
 			}]
