@@ -2,6 +2,9 @@
 A small Discord bot, based around the Danganronpa series.
 Created by Kaylee#9999 and Jackel.
 
+# Something to note for myself.
+Don't ever use git in command line. I made two commits by accident and it aggrivates me.
+
 # Features
 Nothing 🙃
 # Known Bugs
