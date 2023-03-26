@@ -53,7 +53,7 @@ module.exports = {
 						inline: true
 					},{
 						name: 'Pingable',
-						value: ping === true ? 'Enabled' : 'Disabled',
+						value: ping == true ? 'Enabled' : 'Disabled',
 						inline: true
 					}]
 				})

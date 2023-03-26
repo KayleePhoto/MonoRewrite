@@ -39,7 +39,9 @@ I'M STILL WORKING ON THIS
 	```
 - run sql scripts | `mysql> source (path to bot)/src/database/db.sql`
 - run `pnpm build` and `pnpm deploy:guild:create` | **see [Package.json](package.json) scripts**  
-**Keep in mind, the `/build` folder. This folder will also need your `.env` in `/secrets`**
+**The `/build` folder will also need your `.env` in `/secrets`**  
+**The `/resources` folder should also be moved into your `/build` folder.**  
+**Create `/temp` in `/build` folder**
 - run `pnpm dev` and enjoy
 - Do other things to have your proper build and not just a development scripts.
 

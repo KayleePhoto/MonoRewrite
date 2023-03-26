@@ -4,8 +4,8 @@ import { Config } from "../create/config";
 import { UserDB } from "../create/user";
 import { randomUUID } from 'crypto';
 import {setTimeout as wait} from "node:timers/promises";
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
-import { ChartConfiguration } from 'chart.js';
+import { Spec, View, parse } from 'vega';
+import * as sharp from 'sharp';
 import * as fs from 'fs';
 
 let globalUUID: string;
@@ -42,26 +42,46 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		if (voter["dataValues"].isVictim === true) {
+		if (voter["dataValues"].isVictim == true) {
 			return i.reply({
 				content: 'You are the victim, you are unable to vote.'
 			});
 		}
-		console.log(config["dataValues"]) // ! Debug
-		// TODO: Fix this, it continue code and starts another voting phase instead of checking preexisting and marking it as "you already voted"
-		// ! Will also not work other other users as well, as it will mark them as the started, essentially.
-		// ! Seems to not care about the isVoting check.
-		if (config["dataValues"].isVoting === true) {
-			return await addVotesToPreexisting(config["dataValues"].votedKillers, target, i, config);
-		}
 
+		if (config["dataValues"].isVoting == true) {
+			let killers = config["dataValues"].votedKillers;
+			return killers.forEach(async (killer: { voters: string | string[]; name: string; id: string; }) => {
+				if (killer.voters.includes(i.user.id)) {
+					return await i.reply({
+						content: `You have already voted.\nYou Voted for: **${killer.name}**`
+					});
+				}
+				if (killer.id === target.id) {
+					killers[killers.indexOf(killer)].voters.push(i.user.id);
+				} else {
+					killers.push({
+						id: target.id,
+						name: target.displayName,
+						voters: [i.user.id]
+					});
+				}
+				await config.update({
+					votedKillers: killers
+				});
+				return await i.reply({
+					content: `Your vote is locked in!\nYou voted for **${target.displayName}**`,
+					ephemeral: true
+				});
+			});
+		}
+		
 		try {
 			await i.deferReply({ ephemeral: true });
 			await config.update({
 				isVoting: true,
 				votedKillers: [{
-					id: target?.id,
-					name: target?.displayName,
+					id: target.id,
+					name: target.displayName,
 					voters: [i.user.id]
 				}]
 			});
@@ -69,21 +89,25 @@ module.exports = {
 				content: 'The voting process has begun! You have 5 minutes to finalize!\nOnce you vote, you are locked in.\n*Use `/vote` to begin.*'
 			});
 
-			await wait(1000 * 60 * 2);
+			// ! Change back to 2 and 3
+			await wait(1000 * 60 * 0.25);
 			await gameChannel.send({
 				content: '3 minutes left to conclude your votes!\n**Remember! Once you vote, it is locked in!**'
 			});
-			await wait(1000 * 60 * 3);
+			await wait(1000 * 60 * 0.25);
 
+			// ? To keep votedKillers list for the chart, I label this var, before .update
+			let votedKillers = config["dataValues"].votedKillers;
+			let votedUsers = getMaxNum(votedKillers);
+			let vote: any;
+			
 			await config.update({
 				isVoting: false,
 				hasGame: false,
-				started: false
+				started: false,
+				votedKillers: null
 			});
 
-			let votedKillers = config["dataValues"].votedKillers;
-			let votedUsers = getMaxNum(votedKillers);
-			let vote;
 
 			if (votedUsers.length > 1) {
 				vote = votedUsers[Math.floor(Math.random() * votedUsers.length)];
@@ -92,6 +116,7 @@ module.exports = {
 			}
 
 			await makeChart(votedKillers);
+			await wait(1000);
 			await gameChannel.send({
 				content: `The voting has concluded\n${
 					votedUsers.length > 1
@@ -116,7 +141,7 @@ module.exports = {
 				await gameChannel.send({
 					content: 'Sounds like you found the guilty.\n Let\'s give\'em our all!\nIt\'s punishment time!',
 					files: [{
-						attachment: `build/resources/punishment/${sortRandomImages('punishment')}`,
+						attachment: `build/resources/punishment/${await sortRandomImages('punishment')}`,
 						name: 'SPOILER_Punishment.gif',
 						description: 'This Killer\'s Punishment.'
 					}]
@@ -130,7 +155,7 @@ module.exports = {
 				await gameChannel.send({
 					content: `Seems like you were wrong... Now you'll receive the ultimate punishment!\nThe killer was: ${i.guild?.members.cache.get(killer["dataValues"].id)}`,
 					files: [{
-						attachment: `build/resources/punishment/${sortRandomImages('punishment')}`,
+						attachment: `build/resources/punishment/${await sortRandomImages('punishment')}`,
 						name: "SPOILER_Punishment.gif",
 						description: 'The Accuser\'s Punishment.'
 					}]
@@ -146,42 +171,19 @@ module.exports = {
 				gameServer: null,
 				victim: victim["dataValues"].victim + 1
 			});
+			return i.editReply({
+				content: "Voting has concluded."
+			});
 		} catch (e) {
 			await config.update({
-				isVoting: false,
 				hasGame: true,
 				started: true,
+				isVoting: false,
 				votedKillers: null
 			});
 			return submitError(e, c);
 		}
 	}
-}
-
-// ? Fix list typing
-async function addVotesToPreexisting(list: {name: string, id: string, voters: string[]}[], target: GuildMember, i: ChatInputCommandInteraction<CacheType>, c: Config) {
-	list.forEach(async killer => {
-		if (killer.voters.includes(i.user.id)) {
-			return i.reply({
-				content: `You have already voted.\nYou Voted for: **${killer.name}**`
-			});
-		}
-		if (killer.id !== target.id) {
-			list.push({
-				id: target.id,
-				name: target.displayName,
-				voters: [i.user.id]
-			});
-		}
-		list[list.indexOf(killer)].voters.push(i.user.id);
-		await c.update({
-			votedKillers: list
-		});
-		return i.reply({
-			content: `Your vote is locked in!\nYou voted for **${target.displayName}**`,
-			ephemeral: true
-		});
-	});
 }
 
 function getMaxNum(array: any[]) {
@@ -200,100 +202,84 @@ function getMaxNum(array: any[]) {
 }
 
 function getData(jsondata: any[]) {
-	const xs: any[] = [];
-	const ys: any[] = [];
+	let data: {user:string, votes: number}[] = [];
 	jsondata.forEach((column: { name: any; voters: string | any[]; }) => {
-		xs.push(column.name);
-		ys.push(column.voters.length);
+		data.push({"user": column.name, "votes": column.voters.length});
 	});
-
-	return { xs, ys };
+	return data;
 }
 
 // TODO: yank the stupid fucking makeChart function
 async function makeChart(JSON: any) {
 	const tempUUID = randomUUID();
 	const data = getData(JSON);
-	const configuration: ChartConfiguration = {
-		type: "bar",
-		data: {
-			labels: data.xs,
-			datasets: [
-				{
-					label: "Test",
-					data: data.ys,
-					backgroundColor: "rgba(167, 26, 26, 0.75)",
-					borderRadius: 10,
-				},
-			],
-		},
-		options: {
-			layout: {
-				padding: 10,
-			},
-			plugins: {
-				legend: {
-					display: false,
-				},
-				title: {
-					display: true,
-					text: "The Votes For the Assumed Killer",
-					color: "#C9C9C9",
-					font: {
-						size: 40,
-						weight: '50'
-					},
-				},
-			},
-			scales: {
-				y: {
-					title: {
-						display: true,
-						text: "Votes",
-						color: "#C9C9C9",
-						font: {
-							size: 40,
-							weight: '20'
-						},
-					},
-					ticks: {
-						font: {
-							size: 35,
-						},
-					},
-					beginAtZero: true,
-				},
-				x: {
-					ticks: {
-						font: {
-							size: 40,
-						},
-						color: "#C9C9C9",
-					},
-				},
-			},
-		},
-		plugins: [{
-			id: "custom_canvas_background_color",
-			beforeDraw: (chart: { width?: any; height?: any; ctx?: any; }) => {
-				const { ctx } = chart;
-				ctx.save();
-				ctx.globalCompositeOperation = "destination-over";
-				ctx.fillStyle = "#202020";
-				ctx.fillRect(0, 0, chart.width, chart.height);
-				ctx.restore();
+	const config: Spec = {
+		"$schema": "https://vega.github.io/schema/vega/v5.json",
+		"width": 300,
+		"height": 300,
+		"padding": 10,
+	  	"background": "#202020",
+	      
+		"data": [
+			{
+			"name": "table",
+				"values": data
 			}
-		}],
-	};
-	
-	
-	const chartCallback = (ChartJS: { defaults: { responsive: boolean; maintainAspectRatio: boolean; }; }) => {
-	  ChartJS.defaults.responsive = true;
-	  ChartJS.defaults.maintainAspectRatio = false;
-	};
-	const width = 1440, height = 1440;
-	const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, chartCallback });
-	const buffer = await chartJSNodeCanvas.renderToBuffer(configuration, 'image/png');
-	fs.writeFile(`./build/temp/temp-${tempUUID}.png`, buffer, (err) => console.error(err));
+		],
+	      
+		"scales": [
+		  {
+		    "name": "xscale",
+		    "type": "band",
+		    "domain": {"data": "table", "field": "user"},
+		    "range": "width",
+		    "padding": 0.1,
+		    "round": true
+		  },
+		  {
+		    "name": "yscale",
+		    "domain": {"data": "table", "field": "votes"},
+		    "nice": true,
+		    "range": "height"
+		  }
+		],
+	      
+		"axes": [
+		  { "orient": "bottom", "scale": "xscale", "labelColor": "#C9C9C9", "domain": false, "ticks": false},
+		  { "orient": "left", "scale": "yscale", "labelColor": "#B6B6B6", "title": "Votes", "titleColor": "#C9C9C9", "domain": false }
+		],
+	      
+		"marks": [
+		  {
+		    "type": "rect",
+		    "from": {"data":"table"},
+		    "encode": {
+		      "enter": {
+			"x": {"scale": "xscale", "field": "user"},
+			"width": {"scale": "xscale", "band": 1},
+			"y": {"scale": "yscale", "field": "votes"},
+			"y2": {"scale": "yscale", "value": 0}
+		      },
+		      "update": {
+			      "fill": {
+		      "value": "rgba(167, 26, 26, 0.75)"
+		    },
+		    "cornerRadius": [{"value": 3}]
+		      }
+		    }
+		  }
+		]
+	}
+
+	const view = new View(parse(config), {renderer: 'none'});
+
+	view.toSVG().then(async function (svg: any) {
+		sharp(Buffer.from(svg)).toFormat('png')
+		.toFile(`./build/temp/chart-${tempUUID}.png`, (err: any) => {
+			if (err) throw console.error(err);
+		});
+	}).catch(function(err) {
+	    console.error(err);
+	});
 	globalUUID = tempUUID;
 }

@@ -29,7 +29,11 @@
 		"downlevelIteration": true,
 		"declaration": true,
 
-		"pretty": true
+		"pretty": true,
+
+		"types": [
+			"chart.js"
+		]
 	},
 	"include": [
 		"typings/**/*",

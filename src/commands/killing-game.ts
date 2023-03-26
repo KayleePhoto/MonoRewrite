@@ -41,7 +41,7 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		if (config['dataValues'].hasGame === true) {
+		if (config['dataValues'].hasGame == true) {
 			return i.reply({
 				content: 'There is already a game happening in this server.',
 				ephemeral: true
@@ -58,12 +58,12 @@ module.exports = {
 		let targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
-		if (targetUser["dataValues"].isVictim === true) {
+		if (targetUser["dataValues"].isVictim == true) {
 			return i.reply({
 				content: 'This user is already in a killing game.',
 				ephemeral: true
 			});
-		} else if (killer["dataValues"].isKiller === true) {
+		} else if (killer["dataValues"].isKiller == true) {
 			return i.reply({
 				content: 'You are already in a game.',
 				ephemeral: true
