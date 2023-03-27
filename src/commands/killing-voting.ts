@@ -89,7 +89,6 @@ module.exports = {
 				content: 'The voting process has begun! You have 5 minutes to finalize!\nOnce you vote, you are locked in.\n*Use `/vote` to begin.*'
 			});
 
-			// ! Change back to 2 and 3
 			await wait(1000 * 60 * 2);
 			await gameChannel.send({
 				content: '3 minutes left to conclude your votes!\n**Remember! Once you vote, it is locked in!**'
