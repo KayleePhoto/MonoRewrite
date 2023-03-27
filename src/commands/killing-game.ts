@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, Client, SlashCommandBuilder, TextChannel, User } from "discord.js";
+import { AttachmentBuilder, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GuildMember, SlashCommandBuilder, TextChannel, User } from "discord.js";
 import { findUser, serverConfig, sortRandomImages, submitError } from "../functions";
 import { Config } from "../create/config";
 import { UserDB } from "../create/user";
@@ -16,7 +16,7 @@ module.exports = {
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		let target = i.options.getUser('target') as User;
-		let targetInGuild = i.guild?.members.cache.get(target.id);
+		let targetInGuild = i.guild?.members.cache.get(target.id) as GuildMember;
 		let config = await serverConfig(i, c) as Config;
 
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
@@ -34,10 +34,10 @@ module.exports = {
 				ephemeral: true
 			});
 		}
-		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || !targetInGuild?.roles.cache.get(role)) {
+		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || !targetInGuild.roles.cache.get(role)) {
 			let gameRole = i.guild?.roles.cache.get(role);
 			return i.reply({
-				content: !targetInGuild?.roles.cache.get(config["dataValues"].role) ? `${target.username} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
+				content: !targetInGuild.roles.cache.get(config["dataValues"].role) ? `${targetInGuild.displayName} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
 				ephemeral: true
 			});
 		}
@@ -78,17 +78,28 @@ module.exports = {
 			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 
 			await gameChannel.send({
-				content: `**Game start** || ${config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : i.guild?.roles.cache.get(config["dataValues"].role)?.name + `\n*Enable role ping with \`/config (channel) (role) true\`*`}\n\n**${target.username}** has been found dead. As you know, sometime after the body has been discovered, a class trial will start.\nSo, feel free to investigate in the mean time.\n*(10 minutes, this is to class trial start. You can take as long as you need.)*`,
-				files: [{
-					attachment: `build/resources/body/${await sortRandomImages('body')}`,
-					name: 'SPOILER_Body.png',
-					description: 'A dead body. | *Descriptive, I know.*'
-				}]
+				content: config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
+				embeds: [new EmbedBuilder({
+					title: '**Game Start**',
+					color: 10038562,
+					fields: [{
+						name: 'Someone was found dead...',
+						value: `It was ${targetInGuild.displayName}`
+					},{
+						name: 'Quickly, before the class trial starts, investigate!',
+						value: 'You have 10 minutes!'
+					}],
+					footer: {
+						text: 'I can\'t spoiler embed images :)'
+					}
+				})],
+				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages('body')}`, {name: 'SPOILER_Body.png'})]
 			});
 
 			await i.deferReply({ephemeral: true});
-			await config.update({ hasGame: true, started: true });
+			await config.update({ hasGame: true});
 			await wait(1000 * 60 * 10);
+			await config.update({ started: true });
 		} catch (e) {
 			await config.update({hasGame: false, started: false});
 			await killer.update({isKiller: false, gameServer: null});
@@ -100,13 +111,19 @@ module.exports = {
 			return await submitError(e, c);
 		}
 
+		await i.editReply({
+			content: `Oh you murderer...\nYou Killed ${targetInGuild.displayName}`
+		});
 		return await gameChannel.send({
-			content: '**The class trial is starting!!**\nEveryone take your seats and prepare your arguments!',
-			files: [{
-				attachment: `build/resources/class-trial/${await sortRandomImages('class-trial')}`,
-				name: 'Trial.png',
-				description: 'The trial has begun!'
-			}]
+			embeds: [new EmbedBuilder({
+				title: '**The class trial is started!!**',
+				color: 10038562,
+				description: 'Prepare your arguments!',
+				image: {
+					url: 'attachment://Trial.png'
+				}	
+			})],
+			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages('class-trial')}`, {name: 'Trial.png'})]
 		});
 	}
 }
