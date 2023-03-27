@@ -28,13 +28,20 @@ export async function submitError(err: any, c: Client) {
 	}
 }
 
-// TODO: Rewrite this to be more useable as a "find user" instead of mostly just a create user.
-export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string | null}) {
+/**
+ * FindUser in UserDB, else create new user in guild.
+ * @param {ChatInputCommandInteraction<CacheType>} i Not used for user id, only to reply.
+ * @param {Client} c Client for error reports
+ * @param options The options to find a user.  
+ * ie. find a killer in a server {isKiller: true, gameServer: i.guild?.id} 
+ * @returns {Promise<void | UserDB>}
+ */
+export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string | null}): Promise<void | UserDB> {
 	let user = await UserDB.findOne({where: options});
 	if (!user) {
 		try {
 			await createUser(options.id as string, options as {isKiller: boolean, isVictim: boolean, gameServer: string | null});
-			return await UserDB.findOne({where: {id: options.id}});
+			return await UserDB.findOne({where: {id: options.id}}) as UserDB;
 		} catch (err) {
 			await i.reply({ content: `There was an error creating the User data.`, ephemeral: true });
 			return submitError(err, c).then(() => {return;});
@@ -43,12 +50,18 @@ export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Cli
 	return user;
 }
 
-export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client) {
+/**
+ * Find server config, else create one.
+ * @param {ChatInputCommandInteraction<CacheType>} i Gets the current guild id
+ * @param {Client} c Client for error reports
+ * @returns {Promise<void | Config>}
+ */
+export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client): Promise<void | Config> {
 	let config = await Config.findOne({ where: { server: i.guild?.id as string } });
 	if (!config) {
 		try {
 			await createConfig(i.guild?.id as string);
-			return config = await Config.findOne({ where: { server: i.guild?.id as string } });
+			return await Config.findOne({ where: { server: i.guild?.id as string } }) as Config;
 		} catch (err) {
 			await i.reply({content: 'There was an error creating the Server Config.', ephemeral: true});
 			return submitError(err, c).then(() => {return;});
@@ -57,7 +70,14 @@ export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c:
 	return config;
 }
 
-export async function sortRandomImages(imgpath: string) {
+/**
+ * Sort random Images  
+ * Sorts through specified folder and returns a random image in side that folder.
+ * @param {string} imgpath The name of the folder.  
+ * ie. "class-trial"
+ * @returns {string}
+ */
+export function sortRandomImages(imgpath: string): string {
 	const images = [];
 	const imagesPath = path.join(__dirname, `resources/${imgpath}`);
 	const imageFiles = fs

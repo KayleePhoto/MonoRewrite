@@ -21,7 +21,7 @@ module.exports = {
 			? [i.options.getUser('user')?.username, i.options.getUser('user')?.id]
 			: [i.user.username, i.user.id];
 		
-		let userData = await findUser(i, c, {id: user[1] as string, isKiller: false, isVictim: false }) as UserDB;
+		let userData = await findUser(i, c, {id: user[1] as string }) as UserDB;
 
 		await i.reply({
 			embeds: [
