@@ -77,7 +77,6 @@ module.exports = {
 			await targetUser.update({ isVictim: true, gameServer: i.guild.id});
 			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 
-			let body = new AttachmentBuilder(`build/resources/body/${sortRandomImages('body')}`, {name: 'SPOILER_Body.png'});
 			await gameChannel.send({
 				embeds: [new EmbedBuilder({
 					title: '**Game Start**',
@@ -93,7 +92,7 @@ module.exports = {
 						url: 'attachment://SPOILER_Body.png'
 					}
 				})],
-				files: [body]
+				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages('body')}`, {name: 'SPOILER_Body.png'})]
 			});
 
 			await i.deferReply({ephemeral: true});
@@ -111,9 +110,8 @@ module.exports = {
 		}
 
 		await i.editReply({
-			content: `Oh you murderer...\nYou Killed ${target.username}`
+			content: `Oh you murderer...\nYou Killed ${targetInGuild.displayName}`
 		});
-		let trial = new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages('class-trial')}`, {name: 'Trial.png'});
 		return await gameChannel.send({
 			embeds: [new EmbedBuilder({
 				title: '**The class trial is started!!**',
@@ -122,7 +120,7 @@ module.exports = {
 					url: 'attachment://Trial.png'
 				}	
 			})],
-			files: [trial]
+			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages('class-trial')}`, {name: 'Trial.png'})]
 		});
 	}
 }

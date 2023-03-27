@@ -1,4 +1,4 @@
-import { CacheType, ChatInputCommandInteraction, Client, GuildMember, SlashCommandBuilder, TextChannel } from "discord.js";
+import { AttachmentBuilder, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GuildMember, SlashCommandBuilder, TextChannel } from "discord.js";
 import { findUser, serverConfig, sortRandomImages, submitError } from "../functions";
 import { Config } from "../create/config";
 import { UserDB } from "../create/user";
@@ -118,15 +118,19 @@ module.exports = {
 			await makeChart(votedKillers);
 			await wait(1000);
 			await gameChannel.send({
+				embeds: [new EmbedBuilder({
+					title: `The voting has concluded!`,
+					description: `${votedUsers.length > 1 ? `There was a time! Randomly selected someone!\n${vote.name}` : vote.name} has been voted out...`,
+					image: {
+						url: 'attachment://chart.png'
+					}
+				})],
 				content: `The voting has concluded\n${
 					votedUsers.length > 1
 					? `There was a tie! Randomly selecting someone!\n${vote.name}`
 					: vote.name
 				} has been voted out...`,
-				files: [{
-					attachment: `build/temp/chart-${globalUUID}.png`,
-					name: 'chart.png'
-				}]
+				files: [new AttachmentBuilder(`/build/temp/chart-${globalUUID}`, {name: 'chart.png'})]
 			});
 
 			try {
@@ -139,12 +143,13 @@ module.exports = {
 			await wait(1000);
 			if (killer["dataValues"].id === vote.id) {
 				await gameChannel.send({
-					content: 'Sounds like you found the guilty.\n Let\'s give\'em our all!\nIt\'s punishment time!',
-					files: [{
-						attachment: `build/resources/punishment/${await sortRandomImages('punishment')}`,
-						name: 'SPOILER_Punishment.gif',
-						description: 'This Killer\'s Punishment.'
-					}]
+					embeds: [new EmbedBuilder({
+						title: 'Sounds like you found the guilty.\nLet\'s give\'em our all!\nIt\'s punishment time!',
+						image: {
+							url: 'attachment://SPOILER_Punishment.gif'
+						}
+					})],
+					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages('punishment')}`, {name: 'SPOILER_Punishment.gif'})]
 				});
 				await killer.update({
 					isKiller: false,
@@ -153,12 +158,14 @@ module.exports = {
 				});
 			} else {
 				await gameChannel.send({
-					content: `Seems like you were wrong... Now you'll receive the ultimate punishment!\nThe killer was: ${i.guild?.members.cache.get(killer["dataValues"].id)}`,
-					files: [{
-						attachment: `build/resources/punishment/${await sortRandomImages('punishment')}`,
-						name: "SPOILER_Punishment.gif",
-						description: 'The Accuser\'s Punishment.'
-					}]
+					embeds: [new EmbedBuilder({
+						title: 'Sounds like you were wrong...\nNow you\'ll receive the ultimate punishment!',
+						description: `The killer was: ${i.guild?.members.cache.get(killer['dataValues'].id)}`,
+						image: {
+							url: 'attachment://SPOILER_Punishment.gif'
+						}
+					})],
+					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages('punishment')}`, {name: 'SPOILER_Punishment.gif'})]
 				});
 				await killer.update({
 					isKiller: false,
