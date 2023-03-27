@@ -50,7 +50,8 @@ I'M STILL WORKING ON THIS
 	# Deploy Commands
 	client_id = '<Client ID from https://discord.com/developers/applications>'
 	```
-- run sql scripts | `mysql> source (path to bot)/src/database/db.sql`
+- run sql scripts | `mysql> source (path to bot)/src/database/db.sql`  
+> Note that I used pnpm. The -lock is not included, so you can use whatever package manager you want.
 - run `pnpm build` and `pnpm deploy:guild:create` | **see [Package.json](package.json) scripts**  
 **The `/build` folder will also need your `.env` in `/secrets`**
 - run `pnpm dev` and enjoy | **This command does recompile the code.**
