@@ -33,7 +33,7 @@ I'M STILL WORKING ON THIS
 
 ---
 
-- create a `/secrets/.env`. This will hold all of your secrets.
+- create a `src/secrets/.env`. This will hold all of your secrets.
 	- It is possible to use a different, path. You'll just need to change the config path in files.  
 	```basic
 	# Bot
