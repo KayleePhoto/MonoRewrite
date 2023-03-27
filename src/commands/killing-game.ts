@@ -82,22 +82,23 @@ module.exports = {
 					title: '**Game Start**',
 					description: config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
 					fields: [{
-						name: 'We have found a dead person!',
+						name: 'Someone was found dead...',
 						value: `It was ${targetInGuild.displayName}`
 					},{
 						name: 'Quickly, before the class trial starts, investigate!',
 						value: 'You have 10 minutes!'
 					}],
-					image: {
-						url: 'attachment://SPOILER_Body.png'
+					footer: {
+						text: 'I can\'t spoiler embed images :)'
 					}
 				})],
 				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages('body')}`, {name: 'SPOILER_Body.png'})]
 			});
 
 			await i.deferReply({ephemeral: true});
-			await config.update({ hasGame: true, started: true });
+			await config.update({ hasGame: true});
 			await wait(1000 * 60 * 10);
+			await config.update({ started: true });
 		} catch (e) {
 			await config.update({hasGame: false, started: false});
 			await killer.update({isKiller: false, gameServer: null});

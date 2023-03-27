@@ -31,6 +31,7 @@ module.exports = {
 				content: 'Please make sure this is a TextChannel.'
 			});
 		}
+		console.log(role, channel, ping);
 		if (!ping) { ping = true; };
 		
 		await config.update({
