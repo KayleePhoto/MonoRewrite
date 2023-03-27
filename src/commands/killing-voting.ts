@@ -90,11 +90,11 @@ module.exports = {
 			});
 
 			// ! Change back to 2 and 3
-			await wait(1000 * 60 * 0.25);
+			await wait(1000 * 60 * 2);
 			await gameChannel.send({
 				content: '3 minutes left to conclude your votes!\n**Remember! Once you vote, it is locked in!**'
 			});
-			await wait(1000 * 60 * 0.25);
+			await wait(1000 * 60 * 3);
 
 			// ? To keep votedKillers list for the chart, I label this var, before .update
 			let votedKillers = config["dataValues"].votedKillers;
@@ -108,7 +108,6 @@ module.exports = {
 				votedKillers: null
 			});
 
-
 			if (votedUsers.length > 1) {
 				vote = votedUsers[Math.floor(Math.random() * votedUsers.length)];
 			} else {
@@ -120,6 +119,7 @@ module.exports = {
 			await gameChannel.send({
 				embeds: [new EmbedBuilder({
 					title: `The voting has concluded!`,
+					color: 10038562,
 					description: `${votedUsers.length > 1 ? `There was a time! Randomly selected someone!\n${vote.name}` : vote.name} has been voted out...`,
 					image: {
 						url: 'attachment://chart.png'
@@ -130,7 +130,7 @@ module.exports = {
 					? `There was a tie! Randomly selecting someone!\n${vote.name}`
 					: vote.name
 				} has been voted out...`,
-				files: [new AttachmentBuilder(`/build/temp/chart-${globalUUID}`, {name: 'chart.png'})]
+				files: [new AttachmentBuilder(`build/temp/chart-${globalUUID}.png`, {name: 'chart.png'})]
 			});
 
 			try {
@@ -145,6 +145,7 @@ module.exports = {
 				await gameChannel.send({
 					embeds: [new EmbedBuilder({
 						title: 'Sounds like you found the guilty.\nLet\'s give\'em our all!\nIt\'s punishment time!',
+						color: 10038562,
 						image: {
 							url: 'attachment://SPOILER_Punishment.gif'
 						}
@@ -160,6 +161,7 @@ module.exports = {
 				await gameChannel.send({
 					embeds: [new EmbedBuilder({
 						title: 'Sounds like you were wrong...\nNow you\'ll receive the ultimate punishment!',
+						color: 10038562,
 						description: `The killer was: ${i.guild?.members.cache.get(killer['dataValues'].id)}`,
 						image: {
 							url: 'attachment://SPOILER_Punishment.gif'
@@ -219,6 +221,7 @@ function getData(jsondata: any[]) {
 // TODO: yank the stupid fucking makeChart function
 async function makeChart(JSON: any) {
 	const tempUUID = randomUUID();
+	globalUUID = tempUUID;
 	const data = getData(JSON);
 	const config: Spec = {
 		"$schema": "https://vega.github.io/schema/vega/v5.json",
@@ -278,15 +281,18 @@ async function makeChart(JSON: any) {
 		]
 	}
 
-	const view = new View(parse(config), {renderer: 'none'});
-
-	view.toSVG().then(async function (svg: any) {
-		sharp(Buffer.from(svg)).toFormat('png')
-		.toFile(`./build/temp/chart-${tempUUID}.png`, (err: any) => {
-			if (err) throw console.error(err);
+	try {
+		const view = new View(parse(config), {renderer: 'none'});
+	
+		await view.toSVG().then(async function (svg: any) {
+			sharp(Buffer.from(svg)).toFormat('png')
+			.toFile(`./build/temp/chart-${tempUUID}.png`, (err: any) => {
+				if (err) throw console.error(err);
+			});
+		}).catch(function(err) {
+		    console.error(err);
 		});
-	}).catch(function(err) {
-	    console.error(err);
-	});
-	globalUUID = tempUUID;
+	} catch (err) {
+		return console.error(err);
+	}
 }

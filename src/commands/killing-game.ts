@@ -78,9 +78,10 @@ module.exports = {
 			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 
 			await gameChannel.send({
+				content: config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
 				embeds: [new EmbedBuilder({
 					title: '**Game Start**',
-					description: config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
+					color: 10038562,
 					fields: [{
 						name: 'Someone was found dead...',
 						value: `It was ${targetInGuild.displayName}`
@@ -116,6 +117,7 @@ module.exports = {
 		return await gameChannel.send({
 			embeds: [new EmbedBuilder({
 				title: '**The class trial is started!!**',
+				color: 10038562,
 				description: 'Prepare your arguments!',
 				image: {
 					url: 'attachment://Trial.png'
