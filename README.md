@@ -33,6 +33,7 @@ I'M STILL WORKING ON THIS
 
 ---
 
+- Download from [Releases](https://github.com/KayleePhoto/MonoRewrite/releases/)
 - create a `src/secrets/.env`. This will hold all of your secrets.
 	- It is possible to use a different, path. You'll just need to change the config path in files.  
 	```basic
