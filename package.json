@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KayleePhoto/Monokubs.git"
+    "url": "git+https://github.com/KayleePhoto/MonoRewrite.git"
   },
   "author": {
     "name": "KayleePhoto and Jackel"
@@ -13,9 +13,9 @@
   "license": "GNU 3.0",
   "private": false,
   "bugs": {
-    "url": "https://github.com/KayleePhoto/Monokubs/issues"
+    "url": "https://github.com/KayleePhoto/MonoRewrite/issues"
   },
-  "homepage": "https://github.com/KayleePhoto/Monokubs#readme",
+  "homepage": "https://github.com/KayleePhoto/MonoRewrite#readme",
   "files": [
     "./bin/*",
     "./build/*"

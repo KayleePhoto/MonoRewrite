@@ -1,16 +1,17 @@
-name: Test Code Compile
-run-name: Running compiler, Does not test code.
-on:
-  pull_request:
-    branches: [ master ]
+name: Test Code Compile 
+run-name: Running compiler, Does not test code. 
+on: 
+  pull_request: 
+    branches: [ master ] 
 
-jobs:
-  test_compile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      with:
-        node-version: 18
-      - run: npm ci
-      - run: npm run build
+jobs: 
+  test_compile: 
+    name: Compile Test 
+    runs-on: ubuntu-latest 
+    steps: 
+      - uses: actions/checkout@v2 
+      - uses: actions/setup-node@v1 
+      with: 
+        node-version: 18 
+      - run: npm ci 
+      - run: npm run build 
