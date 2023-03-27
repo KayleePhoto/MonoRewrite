@@ -104,4 +104,6 @@ dist
 pnpm-lock.yaml
 
 # Build folder
-build/
+build/*
+!build/resources
+!build/temp

@@ -1,0 +1,2 @@
+Placeholder file.
+Folder is required for voting command to properly make temporary chart images.

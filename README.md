@@ -3,14 +3,24 @@ A small Discord bot, based around the Danganronpa series.
 Created by Kaylee#9999 and Jackel.
 
 # Features
-Nothing 🙃
+- Games
+	- "Killing" game
+		> where a user is found "dead" then the people with the game role,  
+		> do what they can, because it's text, to find the killer.  
+		> Once ready, the `/vote` command, will being a 5 minute timer.  
+		> After that, a chart graphing the killers and their votes will be listed.
+- Config
+	- Activate games by setting up their settings.
 # Known Bugs
 **Everything**
 # Current Work List
-- The bot
-- Setup
+- Config Command
+	- Proper compatibility with other games
+	- Including the Database.
+- Killing Game
+	- Selectable punishment settings
+		- the annoying task of getting user ids before finished the killing game for punishments.
 - Different Games
-	- Killing game
 	- Card collecting game
 	- More?
 # How To Setup
@@ -31,7 +41,7 @@ I'M STILL WORKING ON THIS
 	dbPass	= '<password>'
 	host	= '<localhost or server IP>'
 	# SubmitError
-	server	= '<Your developing Discord server id>' # This is also used in deploy commands.
+	server	= '<Your developing Discord server id>' # This is also used in guild deploy command.
 	channel	= '<Error Channel ID>'
 	author	= '<Your user ID>' # for pings on errors
 	# Deploy Commands
@@ -39,10 +49,8 @@ I'M STILL WORKING ON THIS
 	```
 - run sql scripts | `mysql> source (path to bot)/src/database/db.sql`
 - run `pnpm build` and `pnpm deploy:guild:create` | **see [Package.json](package.json) scripts**  
-**The `/build` folder will also need your `.env` in `/secrets`**  
-**The `/resources` folder should also be moved into your `/build` folder.**  
-**Create `/temp` in `/build` folder**
-- run `pnpm dev` and enjoy
+**The `/build` folder will also need your `.env` in `/secrets`**
+- run `pnpm dev` and enjoy | **This command does recompile the code.**
 - Do other things to have your proper build and not just a development scripts.
 
 ## Note
