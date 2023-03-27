@@ -163,8 +163,8 @@ module.exports = {
 						title: 'Sounds like you were wrong...\nNow you\'ll receive the ultimate punishment!',
 						color: 10038562,
 						description: `The killer was: ${i.guild?.members.cache.get(killer['dataValues'].id)}`,
-						image: {
-							url: 'attachment://SPOILER_Punishment.gif'
+						footer: {
+							text: 'I can\'t spoiler embed images :)' 
 						}
 					})],
 					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages('punishment')}`, {name: 'SPOILER_Punishment.gif'})]
