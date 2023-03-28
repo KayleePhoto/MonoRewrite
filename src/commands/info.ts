@@ -22,6 +22,11 @@ module.exports = {
 				author: {
 					name: owner.username + "#" + owner.discriminator,
 					icon_url: owner.avatarURL({forceStatic: true}) as string
+				},
+				footer: {
+					// Remove this if you want, but I did this project completely free, and would like credit.
+					// Please keep the main github repo link.
+					text: "If the author does not match \"Kaylee#9999\", it is being hosted by the listed user instead.\nI worked on this project completely free and left it open sourced. I take full credit for the main features of the bot.\nIf the bot is hosted by another user, please do no submit issue tickets to the github."
 				}
 			})]
 		});
