@@ -59,5 +59,6 @@ I'M STILL WORKING ON THIS
 - Do other things to have your proper build and not just a development scripts.
 
 ## Note
+Disregard errors in the build folder. I'm too lazy to setup ESLint correctly.
 **All my Database calls, are between two User and Config.**  
 **If you add anymore more tables to your DB, keep that in mind, for something like "findUser" is not dynamic**
