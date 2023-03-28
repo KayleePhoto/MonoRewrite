@@ -10,62 +10,63 @@ module.exports = {
 		.setDescription("Being the killing game!")
 		.setDMPermission(false)
 		.addUserOption((option) =>
-			option.setName('target')
-			.setDescription('The user you want to kill.')
-			.setRequired(true)
+			option.setName("target")
+				.setDescription("The user you want to kill.")
+				.setRequired(true)
 		),
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
-		let target = i.options.getUser('target') as User;
-		let targetInGuild = i.guild?.members.cache.get(target.id) as GuildMember;
-		let config = await serverConfig(i, c) as Config;
+		const target = i.options.getUser("target") as User;
+		const targetInGuild = i.guild?.members.cache.get(target.id) as GuildMember;
+		const config = await serverConfig(i, c) as Config;
 
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
-		const role = config['dataValues'].role;
+		const role = config["dataValues"].role;
 
 		if (!gameChannel || !role) {
 			return i.reply({
-				content: 'Please make sure that the Game Channel and Game Role are set in `/config`',
+				content: "Please make sure that the Game Channel and Game Role are set in `/config`",
 				ephemeral: false
 			});
 		}
 		if (!targetInGuild || target.bot) {
 			return i.reply({
-				content: 'This user is either a bot or does not exist in the guild.',
+				content: "This user is either a bot or does not exist in the guild.",
 				ephemeral: true
 			});
 		}
 		if (!i.guild?.members.cache.get(i.user.id)?.roles.cache.get(role) || !targetInGuild.roles.cache.get(role)) {
-			let gameRole = i.guild?.roles.cache.get(role);
+			const gameRole = i.guild?.roles.cache.get(role);
 			return i.reply({
-				content: !targetInGuild.roles.cache.get(config["dataValues"].role) ? `${targetInGuild.displayName} does not have the ${gameRole?.name} role.` : `You do not have the ${gameRole?.name} role.`,
+				content: !targetInGuild.roles.cache.get(config["dataValues"].role)
+					? `${targetInGuild.displayName} does not have the ${gameRole?.name} role.`
+					: `You do not have the ${gameRole?.name} role.`,
 				ephemeral: true
 			});
 		}
-		if (config['dataValues'].hasGame == true) {
+		if (config["dataValues"].hasGame == true) {
 			return i.reply({
-				content: 'There is already a game happening in this server.',
+				content: "There is already a game happening in this server.",
 				ephemeral: true
 			});
 		}
 		if (i.user.id === target.id) {
 			return i.reply({
-				content: 'You can not kill yourself.',
+				content: "You can not kill yourself.",
 				ephemeral: true
 			});
 		}
 
-		
 		let targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
 
 		if (targetUser["dataValues"].isVictim == true) {
 			return i.reply({
-				content: 'This user is already in a killing game.',
+				content: "This user is already in a killing game.",
 				ephemeral: true
 			});
 		} else if (killer["dataValues"].isKiller == true) {
 			return i.reply({
-				content: 'You are already in a game.',
+				content: "You are already in a game.",
 				ephemeral: true
 			});
 		}
@@ -78,22 +79,24 @@ module.exports = {
 			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
 
 			await gameChannel.send({
-				content: config["dataValues"].pingable == true ? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*` : `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
+				content: config["dataValues"].pingable == true
+					? `${i.guild.roles.cache.get(config["dataValues"].role)}\n*Disable role ping with \`/config (channel) (role) false\`*`
+					: `${i.guild?.roles.cache.get(config["dataValues"].role)?.name}\n*Enable role ping with \`/config (channel) (role) true\`*`,
 				embeds: [new EmbedBuilder({
-					title: '**Game Start**',
+					title: "**Game Start**",
 					color: 10038562,
 					fields: [{
-						name: 'Someone was found dead...',
+						name: "Someone was found dead...",
 						value: `It was ${targetInGuild.displayName}`
 					},{
-						name: 'Quickly, before the class trial starts, investigate!',
-						value: 'You have 10 minutes!'
+						name: "Quickly, before the class trial starts, investigate!",
+						value: "You have 10 minutes!"
 					}],
 					footer: {
-						text: 'I can\'t spoiler embed images :)'
+						text: "I can\"t spoiler embed images :)"
 					}
 				})],
-				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages('body')}`, {name: 'SPOILER_Body.png'})]
+				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages("body")}`, {name: "SPOILER_Body.png"})]
 			});
 
 			await i.deferReply({ephemeral: true});
@@ -105,7 +108,7 @@ module.exports = {
 			await killer.update({isKiller: false, gameServer: null});
 			await targetUser.update({isVictim: false, gameServer: null});
 			await i.reply({
-				content: 'There was an error with the game.',
+				content: "There was an error with the game.",
 				ephemeral: true
 			});
 			return await submitError(e, c);
@@ -116,14 +119,14 @@ module.exports = {
 		});
 		return await gameChannel.send({
 			embeds: [new EmbedBuilder({
-				title: '**The class trial is started!!**',
+				title: "**The class trial is started!!**",
 				color: 10038562,
-				description: 'Prepare your arguments!',
+				description: "Prepare your arguments!",
 				image: {
-					url: 'attachment://Trial.png'
+					url: "attachment://Trial.png"
 				}	
 			})],
-			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages('class-trial')}`, {name: 'Trial.png'})]
+			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages("class-trial")}`, {name: "Trial.png"})]
 		});
 	}
-}
+};

@@ -1,6 +1,6 @@
-import { config } from 'dotenv';
-import { Sequelize } from 'sequelize';
-config({ path: __dirname + '/.env' });
+import { config } from "dotenv";
+import { Sequelize } from "sequelize";
+config({ path: __dirname + "/.env" });
 
 export const dbConnect = new Sequelize(
 	process.env.dbName as string,
@@ -8,7 +8,7 @@ export const dbConnect = new Sequelize(
 	process.env.dbPass as string,
 	{
 		host: process.env.host as string,
-		dialect: 'mysql',
+		dialect: "mysql",
 
 		pool: {
 			max: 5,

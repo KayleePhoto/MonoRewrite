@@ -30,10 +30,6 @@
 		"declaration": true,
 
 		"pretty": true,
-
-		"types": [
-			"chart.js"
-		]
 	},
 	"include": [
 		"typings/**/*",

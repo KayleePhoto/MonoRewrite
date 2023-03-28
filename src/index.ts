@@ -1,7 +1,7 @@
-import { ActivityType, Client, Events, GatewayIntentBits } from 'discord.js';
-import { defineCommands, findUser, serverConfig, submitError } from './functions';
-import { config } from 'dotenv';
-config({ path: './secrets/.env' });
+import { ActivityType, Client, Events, GatewayIntentBits } from "discord.js";
+import { defineCommands, findUser, serverConfig, submitError } from "./functions";
+import { config } from "dotenv";
+config({ path: "./secrets/.env" });
 
 const client = new Client({
 	intents: [
@@ -14,10 +14,10 @@ defineCommands(client);
 client.on(Events.ClientReady, c => {
 	console.log(`Logged in as ${c.user.tag}`);
 	c.user.setPresence({
-		status: 'dnd',
-		activities: [{
-			name: 'myself be rewritten!', // Set this to whatever you want
-			type: ActivityType.Watching // Anything under ActivityType is valid
+		status: "dnd",
+		activities: [{ // Set this to whatever you want.
+			name: "myself be rewritten!",
+			type: ActivityType.Watching
 		}]
 	});
 });

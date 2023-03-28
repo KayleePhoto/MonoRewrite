@@ -1,5 +1,5 @@
-import { Model, DataTypes } from 'sequelize';
-import { dbConnect } from '../secrets/connect';
+import { Model, DataTypes } from "sequelize";
+import { dbConnect } from "../secrets/connect";
 
 export class UserDB extends Model {}
 
@@ -28,7 +28,7 @@ UserDB.init({
 		type: DataTypes.TINYINT({length: 1}),
 		defaultValue: 0
 	},	
-		isVictim: {
+	isVictim: {
 		type: DataTypes.TINYINT({length: 1}),
 		defaultValue: 0
 	},
@@ -38,18 +38,18 @@ UserDB.init({
 	}
 },{
 	sequelize: dbConnect,
-	modelName: 'user',
+	modelName: "user",
 	freezeTableName: true,
 	updatedAt: false,
 	createdAt: false
 });
 
 export async function createUser(id: string, options: {isKiller: boolean, isVictim: boolean, gameServer: string | null}) {
-  	const user: any = new UserDB({
+	const user: any = new UserDB({
 		id: id,
 		isKiller: options.isKiller,
 		isVictim: options.isVictim,
 		gameServer: options.gameServer
 	});
-  	await user.save();
+	await user.save();
 }
