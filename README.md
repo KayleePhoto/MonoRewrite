@@ -39,7 +39,7 @@ I'M STILL WORKING ON THIS
 	```basic
 	# Bot
 	Token	= '<Token from https://discord.com/developers/applications>'
-	# Database
+	# Database Uses MySQL
 	dbName	= '<exampleDB>'
 	dbUser	= '<exampleUser>'
 	dbPass	= '<password>'
