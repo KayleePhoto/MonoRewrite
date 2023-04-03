@@ -1,9 +1,9 @@
 import { AttachmentBuilder, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GuildMember, SlashCommandBuilder, TextChannel } from "discord.js";
-import { findUser, serverConfig, sortRandomImages, submitError } from "../functions";
+import { findKiller, serverConfig, sortRandomImages, submitError } from "../functions";
 import { Config } from "../create/config";
-import { UserDB } from "../create/user";
+import { KillUser } from "../create/killing-user";
 import { randomUUID } from "crypto";
-import {setTimeout as wait} from "node:timers/promises";
+import { setTimeout as wait } from "node:timers/promises";
 import { Spec, View, parse } from "vega";
 import * as sharp from "sharp";
 import * as fs from "fs";
@@ -32,9 +32,9 @@ module.exports = {
 			});
 		}
 
-		const killer = await findUser(i, c, {gameServer: i.guild?.id as string, isKiller: true}) as UserDB;
-		const victim = await findUser(i, c, {gameServer: i.guild?.id as string, isVictim: true}) as UserDB;
-		const voter = await findUser(i, c, {id: i.user.id}) as UserDB;
+		const killer = await findKiller(i, c, { gameServer: i.guild?.id as string, isKiller: true }) as KillUser;
+		const victim = await findKiller(i, c, { gameServer: i.guild?.id as string, isVictim: true }) as KillUser;
+		const voter = await findKiller(i, c, { id: i.user.id }) as KillUser;
 
 		if (config["dataValues"].started === false) {
 			return i.reply({
@@ -129,7 +129,7 @@ module.exports = {
 						? `There was a tie! Randomly selecting someone!\n${vote.name}`
 						: vote.name
 				} has been voted out...`,
-				files: [new AttachmentBuilder(`build/temp/chart-${globalUUID}.png`, {name: "chart.png"})]
+				files: [new AttachmentBuilder(`build/temp/chart-${globalUUID}.png`, { name: "chart.png" })]
 			});
 
 			try {
@@ -149,7 +149,7 @@ module.exports = {
 							url: "attachment://SPOILER_Punishment.gif"
 						}
 					})],
-					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages("punishment")}`, {name: "SPOILER_Punishment.gif"})]
+					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages("punishment")}`, { name: "SPOILER_Punishment.gif" })]
 				});
 				await killer.update({
 					isKiller: false,
@@ -166,7 +166,7 @@ module.exports = {
 							text: "I can\"t spoiler embed images :)" 
 						}
 					})],
-					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages("punishment")}`, {name: "SPOILER_Punishment.gif"})]
+					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages("punishment")}`, { name: "SPOILER_Punishment.gif" })]
 				});
 				await killer.update({
 					isKiller: false,
@@ -212,7 +212,7 @@ function getMaxNum(array: any[]) {
 function getData(jsondata: any[]) {
 	const data: {user:string, votes: number}[] = [];
 	jsondata.forEach((column: { name: any; voters: string | any[]; }) => {
-		data.push({"user": column.name, "votes": column.voters.length});
+		data.push({ "user": column.name, "votes": column.voters.length });
 	});
 	return data;
 }
@@ -238,38 +238,38 @@ async function makeChart(JSON: any) {
 			{
 				"name": "xscale",
 				"type": "band",
-				"domain": {"data": "table", "field": "user"},
+				"domain": { "data": "table", "field": "user" },
 				"range": "width",
 				"padding": 0.1,
 				"round": true
 			},
 			{
 				"name": "yscale",
-				"domain": {"data": "table", "field": "votes"},
+				"domain": { "data": "table", "field": "votes" },
 				"nice": true,
 				"range": "height"
 			}
 		],
 		"axes": [
-			{ "orient": "bottom", "scale": "xscale", "labelColor": "#C9C9C9", "domain": false, "ticks": false},
+			{ "orient": "bottom", "scale": "xscale", "labelColor": "#C9C9C9", "domain": false, "ticks": false },
 			{ "orient": "left", "scale": "yscale", "labelColor": "#B6B6B6", "title": "Votes", "titleColor": "#C9C9C9", "domain": false }
 		],
 		"marks": [
 			{
 				"type": "rect",
-				"from": {"data":"table"},
+				"from": { "data":"table" },
 				"encode": {
 					"enter": {
-						"x": {"scale": "xscale", "field": "user"},
-						"width": {"scale": "xscale", "band": 1},
-						"y": {"scale": "yscale", "field": "votes"},
-						"y2": {"scale": "yscale", "value": 0}
+						"x": { "scale": "xscale", "field": "user" },
+						"width": { "scale": "xscale", "band": 1 },
+						"y": { "scale": "yscale", "field": "votes" },
+						"y2": { "scale": "yscale", "value": 0 }
 					},
 					"update": {
 						"fill": {
 							"value": "rgba(167, 26, 26, 0.75)"
 						},
-						"cornerRadius": [{"value": 3}]
+						"cornerRadius": [{ "value": 3 }]
 					}
 				}
 			}
@@ -277,7 +277,7 @@ async function makeChart(JSON: any) {
 	};
 
 	try {
-		const view = new View(parse(config), {renderer: "none"});
+		const view = new View(parse(config), { renderer: "none" });
 	
 		await view.toSVG().then(async function (svg: any) {
 			sharp(Buffer.from(svg)).toFormat("png")

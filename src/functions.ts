@@ -1,9 +1,10 @@
 import * as path from "path";
 import * as fs from "fs";
-import { CacheType, ChannelType, ChatInputCommandInteraction, Client, Collection } from "discord.js";
+import { AttachmentBuilder, CacheType, ChannelType, ChatInputCommandInteraction, Client, Collection, TextChannel } from "discord.js";
 import { config } from "dotenv";
 import { createConfig, Config } from "./create/config";
-import { createUser, UserDB } from "./create/user";
+import { KillUser, createKillerUser } from "./create/killing-user";
+import { User, createUser } from "./create/user";
 config({ path: "./secrets/.env" });
 
 export function defineCommands(c: Client) {
@@ -17,7 +18,7 @@ export function defineCommands(c: Client) {
 	}
 }
 
-export async function submitError(err: unknown, c: Client) {
+export async function submitError(err: any, c: Client) {
 	const server		= c.guilds.cache.get(process.env.server as string);
 	const errorChannel	= server?.channels.cache.get(process.env.channel as string);
 	if (errorChannel?.type === ChannelType.GuildText) {
@@ -28,22 +29,73 @@ export async function submitError(err: unknown, c: Client) {
 	}
 }
 
+// TODO: I really need to make a dynamic User function.
+// TODO: I'm so fucking god damn lazy...
 /**
- * FindUser in UserDB, else create new user in guild.
- * @param {ChatInputCommandInteraction<CacheType>} i Not used for user id, only to reply.
+ * Find User in User DB, else create new user in guild.
+ * @param {ChatInputCommandInteraction<CacheType>} i Only to reply
  * @param {Client} c Client for error reports
- * @param options The options to find a user.  
- * ie. find a killer in a server {isKiller: true, gameServer: i.guild?.id} 
- * @returns {Promise<void | UserDB>}
+ * @param options The options to find a user
+ * @returns {Promise<void | User>}
  */
-export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Client, options: {id?: string, isKiller?: boolean, isVictim?: boolean, gameServer?: string | null}): Promise<void | UserDB> {
-	const user = await UserDB.findOne({where: options});
+export async function findUser(
+	i: ChatInputCommandInteraction<CacheType>,
+	c: Client,
+	options: {
+		id: string
+	}
+): Promise<void | User> {
+	const user = await User.findOne({ where: options }) as User;
 	if (!user) {
 		try {
-			await createUser(options.id as string, options as {isKiller: boolean, isVictim: boolean, gameServer: string | null});
-			return await UserDB.findOne({where: {id: options.id}}) as UserDB;
+			await createUser(options.id);
+			return await User.findOne({ where: options }) as User;
+		} catch (e) {
+			await i.reply({
+				content: "There was an error creating the User data.",
+				ephemeral: true
+			});
+			return submitError(e, c).then(() => {return;});
+		}
+	}
+	return user;
+}
+
+/**
+ * findKiller in KillUser DB, else create new user in guild.
+ * @param {ChatInputCommandInteraction<CacheType>} i Not used for user id, only to reply.
+ * @param {Client} c Client for error reports
+ * @param options The options to find a user.
+ * ie. find a killer in a server {isKiller: true, gameServer: i.guild?.id} 
+ * @returns {Promise<void | KillUser>}
+ */
+export async function findKiller(
+	i: ChatInputCommandInteraction<CacheType>,
+	c: Client,
+	options: {
+		id?: string,
+		isKiller?: boolean,
+		isVictim?: boolean,
+		gameServer?: string | null
+	}
+): Promise<void | KillUser> {
+	const user = await KillUser.findOne({ where: options });
+	if (!user) {
+		try {
+			await createKillerUser(
+				options.id as string,
+				options as {
+					isKiller: boolean,
+					isVictim: boolean,
+					gameServer: string | null
+				}
+			);
+			return await KillUser.findOne({ where: { id: options.id } }) as KillUser;
 		} catch (err) {
-			await i.reply({ content: "There was an error creating the User data.", ephemeral: true });
+			await i.reply({
+				content: "There was an error creating the KillUser data.",
+				ephemeral: true
+			});
 			return submitError(err, c).then(() => {return;});
 		}
 	}
@@ -56,14 +108,20 @@ export async function findUser(i: ChatInputCommandInteraction<CacheType>, c: Cli
  * @param {Client} c Client for error reports
  * @returns {Promise<void | Config>}
  */
-export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c: Client): Promise<void | Config> {
+export async function serverConfig(
+	i: ChatInputCommandInteraction<CacheType>,
+	c: Client
+): Promise<void | Config> {
 	const config = await Config.findOne({ where: { server: i.guild?.id as string } });
 	if (!config) {
 		try {
 			await createConfig(i.guild?.id as string);
 			return await Config.findOne({ where: { server: i.guild?.id as string } }) as Config;
 		} catch (err) {
-			await i.reply({content: "There was an error creating the Server Config.", ephemeral: true});
+			await i.reply({
+				content: "There was an error creating the Server Config.",
+				ephemeral: true
+			});
 			return submitError(err, c).then(() => {return;});
 		}
 	}
@@ -78,7 +136,7 @@ export async function serverConfig(i: ChatInputCommandInteraction<CacheType>, c:
  * @returns {string}
  */
 export function sortRandomImages(imgpath: string): string {
-	const images = [];
+	const images: string[] = [];
 	const imagesPath = path.join(__dirname, `resources/${imgpath}`);
 	const imageFiles = fs
 		.readdirSync(imagesPath);
@@ -86,4 +144,19 @@ export function sortRandomImages(imgpath: string): string {
 		images.push(image);
 	}
 	return images[Math.floor(Math.random() * images.length)];
+}
+
+export async function TimerMotivations(i: ChatInputCommandInteraction<CacheType>, c: Client) {
+	const config = await serverConfig(i, c) as Config;
+	const iTime = i.createdAt;
+	const diff = config["dataValues"].timer - iTime.getHours();
+
+	if (config["dataValues"].motives == true && diff == 24) {
+		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
+		return gameChannel.send({
+			content: `It has been ${diff} hours since the last killing, everyone forfeits 100 coins!`,
+			files: [new AttachmentBuilder("build/resources/timers/timer.gif")]
+		});
+	}
+	return null;
 }

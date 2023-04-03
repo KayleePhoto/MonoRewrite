@@ -1,8 +1,8 @@
 import { AttachmentBuilder, CacheType, ChatInputCommandInteraction, Client, EmbedBuilder, GuildMember, SlashCommandBuilder, TextChannel, User } from "discord.js";
 import { findUser, serverConfig, sortRandomImages, submitError } from "../functions";
 import { Config } from "../create/config";
-import { UserDB } from "../create/user";
-import {setTimeout as wait} from "node:timers/promises";
+import { KillUser } from "../create/killing-user";
+import { setTimeout as wait } from "node:timers/promises";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -56,8 +56,8 @@ module.exports = {
 			});
 		}
 
-		let targetUser = await findUser(i, c, {id: target.id}) as UserDB;
-		let killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
+		let targetUser = await findUser(i, c, { id: target.id }) as KillUser;
+		let killer = await findUser(i, c, { id: i.user?.id }) as KillUser;
 
 		if (targetUser["dataValues"].isVictim == true) {
 			return i.reply({
@@ -73,10 +73,10 @@ module.exports = {
 
 		try {
 			// ? Make database update function??? to remove the need for reinit?
-			await killer.update({ isKiller: true, gameServer: i.guild.id});
-			killer = await findUser(i, c, {id: i.user?.id}) as UserDB;
-			await targetUser.update({ isVictim: true, gameServer: i.guild.id});
-			targetUser = await findUser(i, c, {id: target.id}) as UserDB;
+			await killer.update({ isKiller: true, gameServer: i.guild.id });
+			killer = await findUser(i, c, { id: i.user?.id }) as KillUser;
+			await targetUser.update({ isVictim: true, gameServer: i.guild.id });
+			targetUser = await findUser(i, c, { id: target.id }) as KillUser;
 
 			await gameChannel.send({
 				content: config["dataValues"].pingable == true
@@ -96,17 +96,17 @@ module.exports = {
 						text: "I can\"t spoiler embed images :)"
 					}
 				})],
-				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages("body")}`, {name: "SPOILER_Body.png"})]
+				files: [new AttachmentBuilder(`build/resources/body/${sortRandomImages("body")}`, { name: "SPOILER_Body.png" })]
 			});
 
-			await i.deferReply({ephemeral: true});
-			await config.update({ hasGame: true});
+			await i.deferReply({ ephemeral: true });
+			await config.update({ hasGame: true });
 			await wait(1000 * 60 * 10);
 			await config.update({ started: true });
 		} catch (e) {
-			await config.update({hasGame: false, started: false});
-			await killer.update({isKiller: false, gameServer: null});
-			await targetUser.update({isVictim: false, gameServer: null});
+			await config.update({ hasGame: false, started: false });
+			await killer.update({ isKiller: false, gameServer: null });
+			await targetUser.update({ isVictim: false, gameServer: null });
 			await i.reply({
 				content: "There was an error with the game.",
 				ephemeral: true
@@ -126,7 +126,7 @@ module.exports = {
 					url: "attachment://Trial.png"
 				}	
 			})],
-			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages("class-trial")}`, {name: "Trial.png"})]
+			files: [new AttachmentBuilder(`build/resources/class-trial/${sortRandomImages("class-trial")}`, { name: "Trial.png" })]
 		});
 	}
 };

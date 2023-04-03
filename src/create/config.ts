@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import { dbConnect } from "../secrets/connect";
 
-export class Config extends Model {}
+class Config extends Model {}
 
 Config.init({
 	server: {
@@ -18,22 +18,22 @@ Config.init({
 		allowNull: true
 	},
 	pingable: {
-		type: DataTypes.TINYINT({length: 1}),
+		type: DataTypes.TINYINT({ length: 1 }),
 		defaultValue: 1,
 		allowNull: false
 	},
 	hasGame: {
-		type: DataTypes.TINYINT({length: 1}),
+		type: DataTypes.TINYINT({ length: 1 }),
 		defaultValue: 0,
 		allowNull: false
 	},
 	started: {
-		type: DataTypes.TINYINT({length: 1}),
+		type: DataTypes.TINYINT({ length: 1 }),
 		defaultValue: 0,
 		allowNull: false
 	},
 	isVoting: {
-		type: DataTypes.TINYINT({length: 1}),
+		type: DataTypes.TINYINT({ length: 1 }),
 		defaultValue: 0,
 		allowNull: false
 	},
@@ -41,7 +41,15 @@ Config.init({
 		type: DataTypes.JSON,
 		allowNull: true
 	}
-}, {sequelize: dbConnect, modelName: "config", createdAt: false, updatedAt: false, freezeTableName: true});
+},{
+	sequelize: dbConnect,
+	modelName: "config",
+	createdAt: false,
+	updatedAt: false,
+	freezeTableName: true
+});
+
+export { Config };
 
 export async function createConfig(server: string) {
 	const config: any = new Config({

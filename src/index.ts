@@ -1,6 +1,7 @@
 import { ActivityType, Client, Events, GatewayIntentBits } from "discord.js";
-import { defineCommands, findUser, serverConfig, submitError } from "./functions";
+import { TimerMotivations, defineCommands, findKiller, findUser, serverConfig, submitError } from "./functions";
 import { config } from "dotenv";
+import { Config } from "./create/config";
 config({ path: "./secrets/.env" });
 
 const client = new Client({
@@ -27,8 +28,17 @@ client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;
 
-	await findUser(interaction, client, {id: interaction.user.id});
-	await serverConfig(interaction, client);
+	const config = await serverConfig(interaction, client) as Config;
+	await findUser(interaction, client, { id: interaction.user.id });
+	
+	// * Motivation Timers
+	// TODO: Make JSON array "enabledGames" in DB
+	if (config["dataValues"].enabledGames.includes("killing")) {
+		await findKiller(interaction, client, { id: interaction.user.id });
+		if (config["dataValues"].motives == true) {
+			await TimerMotivations(interaction, client);
+		}
+	}
 
 	try {
 		await command.execute(interaction, client);

@@ -21,7 +21,7 @@ module.exports = {
 				}],
 				author: {
 					name: owner.username + "#" + owner.discriminator,
-					icon_url: owner.avatarURL({forceStatic: true}) as string
+					icon_url: owner.avatarURL({ forceStatic: true }) as string
 				},
 				footer: {
 					// Remove this if you want, but I did this project completely free, and would like credit.

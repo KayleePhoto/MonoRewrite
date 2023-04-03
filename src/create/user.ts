@@ -1,40 +1,18 @@
-import { Model, DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { dbConnect } from "../secrets/connect";
 
-export class UserDB extends Model {}
+class User extends Model {}
 
-UserDB.init({
+User.init({
 	id: {
 		type: DataTypes.STRING(30),
 		primaryKey: true,
 		allowNull: false
 	},
-	sucKill: {
+	balance: {
 		type: DataTypes.INTEGER,
-		allowNull: false,
-		defaultValue: 0
-	},
-	victim: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-		defaultValue: 0
-	},
-	caught: {
-		type: DataTypes.INTEGER,
-		allowNull: false,
-		defaultValue: 0
-	},
-	isKiller: {
-		type: DataTypes.TINYINT({length: 1}),
-		defaultValue: 0
-	},	
-	isVictim: {
-		type: DataTypes.TINYINT({length: 1}),
-		defaultValue: 0
-	},
-	gameServer: {
-		type: DataTypes.STRING(30),
-		allowNull: true
+		defaultValue: 0,
+		allowNull: false
 	}
 },{
 	sequelize: dbConnect,
@@ -44,12 +22,11 @@ UserDB.init({
 	createdAt: false
 });
 
-export async function createUser(id: string, options: {isKiller: boolean, isVictim: boolean, gameServer: string | null}) {
-	const user: any = new UserDB({
-		id: id,
-		isKiller: options.isKiller,
-		isVictim: options.isVictim,
-		gameServer: options.gameServer
+export { User };
+
+export async function createUser(id: string) {
+	const user = new User({
+		id: id
 	});
 	await user.save();
 }
