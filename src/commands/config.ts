@@ -1,6 +1,6 @@
-import { APIInteractionDataResolvedChannel, APIRole, CacheType, ChannelType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, TextChannel } from "discord.js";
-// import { serverConfig } from "../functions";
-// import { Config } from "../create/config";
+import { APIInteractionDataResolvedChannel, APIRole, CacheType, ChannelType, ChatInputCommandInteraction, Client, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, TextChannel } from "discord.js";
+import { serverConfig } from "../functions";
+import { Config } from "../create/config";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ module.exports = {
 				.setDescription("Select which games to enable.")
 				.addSubcommand(scommand =>
 					// TODO: Finish this
-					scommand.setName("killing-game")
+					scommand.setName("killing")
 						.setDescription("Enable or Disable certain games.")
 						.addBooleanOption(option => 
 							option.setName("game-enable")
@@ -42,7 +42,7 @@ module.exports = {
 			PermissionFlagsBits.KickMembers + PermissionFlagsBits.BanMembers
 		),
 	// ! Bring back all comments
-	async execute(i: ChatInputCommandInteraction<CacheType>) { // , c: Client
+	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		const subCommand = i.options.getSubcommand();
 
 		if (subCommand == "killing-game") {
@@ -52,7 +52,7 @@ module.exports = {
 			const channel	= i.options.getChannel("channel");
 			let ping	= i.options.getBoolean("enable-ping");
 			let motives	= i.options.getBoolean("enable-motives");
-			// const config	= await serverConfig(i, c) as Config;
+			const config	= await serverConfig(i, c) as Config;
 
 			if (channel?.type !== ChannelType.GuildText) {
 				return i.reply({
@@ -61,7 +61,7 @@ module.exports = {
 			}
 			if (motives == null) { motives = true; }
 			if (ping == null) { ping = true; }
-			return await KillingGame(channel, enabled, ping, motives, role, i);
+			return await KillingGame(channel, enabled, ping, motives, role, i, config);
 		}
 
 		
@@ -78,21 +78,22 @@ async function KillingGame(
 	motives: boolean,
 	role: Role | APIRole | null,
 	i: ChatInputCommandInteraction<CacheType>,
-	// config: Config
+	config: Config
 ) {
-	// await config.update({
-	// 	channel: channel.id,
-	// 	role: role?.id,
-	// 	// TODO: Create this in DB
-	// 	killingGame: enabled,
-	// 	pingable: ping,
-	// 	motives: motives
-	// });
+	let games = config["dataValues"].enabledGames;
+	games.push("killing-game");
+	await config.update({
+		channel: channel.id,
+		role: role?.id,
+		pingable: ping,
+		motives: motives,
+		enabledGames: games
+	});
 
 	return await i.reply({
 		embeds: [
 			new EmbedBuilder({
-				title: `Server Config | Killing game: ${enabled}`,
+				title: `Server Config | Killing game: ${enabled == true ? "Enabled" : "Disabled"}`,
 				fields: [{
 					name: "Channel",
 					value: `${channel}`,

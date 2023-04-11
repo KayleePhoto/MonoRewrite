@@ -33,7 +33,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	
 	// * Motivation Timers
 	// TODO: Make JSON array "enabledGames" in DB
-	if (config["dataValues"].enabledGames.includes("killing")) {
+	if (config["dataValues"].enabledGames.includes("killing-game")) {
 		await findKiller(interaction, client, { id: interaction.user.id });
 		if (config["dataValues"].motives == true) {
 			await TimerMotivations(interaction, client);

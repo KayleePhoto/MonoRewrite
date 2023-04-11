@@ -46,7 +46,7 @@ Config.init({
 		type: DataTypes.JSON,
 		allowNull: true
 	},
-	enabledGamed: {
+	enabledGames: {
 		type: DataTypes.JSON,
 		allowNull: true
 	}
@@ -62,7 +62,8 @@ export { Config };
 
 export async function createConfig(server: string) {
 	const config: any = new Config({
-		server: server
+		server: server,
+		enabledGames: []
 	});
 	await config.save();
 }
