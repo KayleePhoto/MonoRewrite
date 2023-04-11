@@ -146,6 +146,7 @@ export function sortRandomImages(imgpath: string): string {
 	return images[Math.floor(Math.random() * images.length)];
 }
 
+// ? 24hours without killing motivation.
 export async function TimerMotivations(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 	const config = await serverConfig(i, c) as Config;
 	const iTime = i.createdAt;
@@ -160,3 +161,10 @@ export async function TimerMotivations(i: ChatInputCommandInteraction<CacheType>
 	}
 	return null;
 }
+// ? Starvation
+// * every hour everyone loses ? coins
+// ? 1,000 coins
+// * Jackpot for whoever wins the killing game, max time after event starts: 15 minutes.
+// * Gains additional 100 coins for each user that DOES NOT vote for them.
+// ? Traitor "Bounty Hunter"
+// * One player is publicly announced at random, whoever kills them gets extra coins as a reward.

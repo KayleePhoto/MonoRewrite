@@ -38,6 +38,8 @@ client.on(Events.InteractionCreate, async interaction => {
 		if (config["dataValues"].motives == true) {
 			await TimerMotivations(interaction, client);
 		}
+	} else {
+		console.log("No games enabled!");
 	}
 
 	try {

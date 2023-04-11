@@ -22,6 +22,11 @@ Config.init({
 		defaultValue: 1,
 		allowNull: false
 	},
+	motives: {
+		type: DataTypes.TINYINT({ length: 1 }),
+		defaultValue: 0,
+		allowNull: false
+	},
 	hasGame: {
 		type: DataTypes.TINYINT({ length: 1 }),
 		defaultValue: 0,
@@ -38,6 +43,10 @@ Config.init({
 		allowNull: false
 	},
 	votedKillers: {
+		type: DataTypes.JSON,
+		allowNull: true
+	},
+	enabledGamed: {
 		type: DataTypes.JSON,
 		allowNull: true
 	}

@@ -1,50 +1,58 @@
-import { APIInteractionDataResolvedChannel, APIRole, CacheType, ChannelType, ChatInputCommandInteraction, Client, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, TextChannel } from "discord.js";
-import { serverConfig } from "../functions";
-import { Config } from "../create/config";
+import { APIInteractionDataResolvedChannel, APIRole, CacheType, ChannelType, ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, Role, SlashCommandBuilder, TextChannel } from "discord.js";
+// import { serverConfig } from "../functions";
+// import { Config } from "../create/config";
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("config")
 		.setDescription("Set all required IDs to use the bot.")
-		.addSubcommand(scommand =>
-		// TODO: Finish this
-			scommand.setName("killing-game")
-				.setDescription("Enable or Disable certain games.")
-				.addBooleanOption(option => 
-					option.setName("game-enable")
-						.setDescription("Enable or disable game, though role and channel are still required.")
-						.setRequired(true)
-				).addChannelOption(option =>
-					option.setName("channel")
-						.setDescription("Select the channel you want to send game messages in.")
-						.setRequired(true)    
-				).addRoleOption(option => 
-					option.setName("game-role")
-						.setDescription("Select the role you want to be used for the game.")
-						.setRequired(true)
-				).addBooleanOption(option => 
-					option.setName("enable-motives")
-						.setDescription("Should motives be involved in the game? | Default: true")
-						.setRequired(false)
-				).addBooleanOption(option =>
-					option.setName("enable-ping")
-						.setDescription("Enable game ping role. | Default: true")
-						.setRequired(false)
+		.addSubcommandGroup(group =>
+			group.setName("game")
+				.setDescription("Select which games to enable.")
+				.addSubcommand(scommand =>
+					// TODO: Finish this
+					scommand.setName("killing-game")
+						.setDescription("Enable or Disable certain games.")
+						.addBooleanOption(option => 
+							option.setName("game-enable")
+								.setDescription("Enable or disable game, though role and channel are still required.")
+								.setRequired(true)
+						).addChannelOption(option =>
+							option.setName("channel")
+								.setDescription("Select the channel you want to send game messages in.")
+								.setRequired(true)    
+						).addRoleOption(option => 
+							option.setName("game-role")
+								.setDescription("Select the role you want to be used for the game.")
+								.setRequired(true)
+						).addBooleanOption(option => 
+							option.setName("enable-motives")
+								.setDescription("Should motives be involved in the game? | Default: true")
+								.setRequired(false)
+						).addBooleanOption(option =>
+							option.setName("enable-ping")
+								.setDescription("Enable game ping role. | Default: true")
+								.setRequired(false)
+						)
+				).addSubcommand(scommand =>
+					scommand.setName("test")
+						.setDescription("Test Description")
 				)
 		).setDMPermission(false).setDefaultMemberPermissions(
 			PermissionFlagsBits.KickMembers + PermissionFlagsBits.BanMembers
 		),
-	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
+	// ! Bring back all comments
+	async execute(i: ChatInputCommandInteraction<CacheType>) { // , c: Client
 		const subCommand = i.options.getSubcommand();
 
 		if (subCommand == "killing-game") {
 		// TODO: Make boolean option for enable or disable
-			const enabled    = i.options.getBoolean("game-enable") as boolean;
-			const role    = i.options.getRole("game-role");
-			const channel    = i.options.getChannel("channel");
-			let ping    = i.options.getBoolean("enable-ping");
-			let motives    = i.options.getBoolean("enable-motives");
-			const config    = await serverConfig(i, c) as Config;
+			const enabled	= i.options.getBoolean("game-enable") as boolean;
+			const role	= i.options.getRole("game-role");
+			const channel	= i.options.getChannel("channel");
+			let ping	= i.options.getBoolean("enable-ping");
+			let motives	= i.options.getBoolean("enable-motives");
+			// const config	= await serverConfig(i, c) as Config;
 
 			if (channel?.type !== ChannelType.GuildText) {
 				return i.reply({
@@ -53,7 +61,7 @@ module.exports = {
 			}
 			if (motives == null) { motives = true; }
 			if (ping == null) { ping = true; }
-			return await KillingGame(channel, enabled, ping, motives, role, i, config);
+			return await KillingGame(channel, enabled, ping, motives, role, i);
 		}
 
 		
@@ -70,16 +78,16 @@ async function KillingGame(
 	motives: boolean,
 	role: Role | APIRole | null,
 	i: ChatInputCommandInteraction<CacheType>,
-	config: Config
+	// config: Config
 ) {
-	await config.update({
-		channel: channel.id,
-		role: role?.id,
-		// TODO: Create this in DB
-		killingGame: enabled,
-		pingable: ping,
-		motives: motives
-	});
+	// await config.update({
+	// 	channel: channel.id,
+	// 	role: role?.id,
+	// 	// TODO: Create this in DB
+	// 	killingGame: enabled,
+	// 	pingable: ping,
+	// 	motives: motives
+	// });
 
 	return await i.reply({
 		embeds: [
