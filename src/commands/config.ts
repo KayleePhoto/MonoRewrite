@@ -80,14 +80,18 @@ async function KillingGame(
 	i: ChatInputCommandInteraction<CacheType>,
 	config: Config
 ) {
-	let games = config["dataValues"].enabledGames;
-	games.push("killing-game");
+	const games = config["dataValues"].enabledGames;
+	let gameEnabled = false;
+	if (config["dataValues"].enabledGames.includes("killing-game")) {
+		gameEnabled = true;
+	}
+	// ! Why does this not update enabledGames
 	await config.update({
 		channel: channel.id,
 		role: role?.id,
 		pingable: ping,
 		motives: motives,
-		enabledGames: games
+		enabledGames: gameEnabled ? games : [...games, "killing-game"]
 	});
 
 	return await i.reply({
