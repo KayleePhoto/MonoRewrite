@@ -19,37 +19,37 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: "10" }).setToken(process.env.Token as string);
 const Servers = [
-	{"name": "dev", "id": process.env.server as string}
+	{ "name": "dev", "id": process.env.server as string }
 ];
 switch (process.argv[2]) {
-case "create":
-	if (!process.argv[3])
-	{
-		console.log("Please define a server to use.\n", Servers);
-		break;
-	}
-	Servers.forEach(s => {
-		if (s.name == process.argv[3])
+	case "create":
+		if (!process.argv[3])
 		{
-			return createCommands(commands, s.id);
+			console.log("Please define a server to use.\n", Servers);
+			break;
 		}
-		return console.log("This server name, does not exist");
-	});
-	break;
-case "delete":
-	if (!process.argv[3])
-	{
-		console.log("Please define a server to use.\n", null, Servers);
+		Servers.forEach(s => {
+			if (s.name == process.argv[3])
+			{
+				return createCommands(commands, s.id);
+			}
+			return console.log("This server name, does not exist");
+		});
 		break;
-	}
-	Servers.forEach(s => {
-		if (s.name == process.argv[3])
+	case "delete":
+		if (!process.argv[3])
 		{
-			return deleteCommands(commands, s.id);
+			console.log("Please define a server to use.\n", null, Servers);
+			break;
 		}
-		return console.log("This server name, does not exist");
-	});
-	break;
+		Servers.forEach(s => {
+			if (s.name == process.argv[3])
+			{
+				return deleteCommands(commands, s.id);
+			}
+			return console.log("This server name, does not exist");
+		});
+		break;
 }
 
 async function createCommands(cmds: Json[], serverId: string)

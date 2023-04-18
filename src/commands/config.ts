@@ -44,14 +44,14 @@ module.exports = {
 	// ! Bring back all comments
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		const subCommand = i.options.getSubcommand();
+		const config	 = await serverConfig(i, c) as Config;
 
-		const config	= await serverConfig(i, c) as Config;
-		if (subCommand == "killing-game") {
-			const enabled	= i.options.getBoolean("game-enable") as boolean;
-			const role	= i.options.getRole("game-role");
-			const channel	= i.options.getChannel("channel");
-			let ping	= i.options.getBoolean("enable-ping");
-			let motives	= i.options.getBoolean("enable-motives");
+		if (subCommand == "killing") {
+			const 	enabled	= i.options.getBoolean("game-enable") as boolean;
+			const 	role	= i.options.getRole("game-role");
+			const 	channel	= i.options.getChannel("channel");
+			let	ping	= i.options.getBoolean("enable-ping");
+			let 	motives	= i.options.getBoolean("enable-motives");
 
 			if (channel?.type !== ChannelType.GuildText) {
 				return i.reply({
@@ -62,22 +62,22 @@ module.exports = {
 			if (ping == null) { ping = true; }
 			return await KillingGame(channel, enabled, ping, motives, role, i, config);
 		} else if (subCommand == "list") {
+			const g = config["dataValues"].enabledGames;
 			return i.reply({
 				embeds: [new EmbedBuilder({
 					title: "The current list of games",
-					// ? Create function to loop through and list all current games with their own special fields.
 					// Killing game		Card game
 					//   Enabled		Disabled
-					// Extra game
-					//  Disabled
-
-					// * This currently, ? are placeholder for if card game was there
-					// ? Remove game from listing? as there will never be duplicates???
-					// Enabled Games
-					// ["killing-game" ?, "card-game" ?]
+					// ? Remove "-game" from listing? as there will never be duplicates???
+					// TODO: Make separate function to reduce similar code here? | Not priority
 					fields: [{
-						name: "Enabled Games",
-						value: config["dataValues"].enabledGames,
+						name: "Killing Game",
+						value: g.includes("killing-game") ? "Enabled" : "Disabled",
+						inline: true
+					},{
+						name: "Card Game | Not yet implemented",
+						value: g.includes("card-game") ? "Enabled" : "Disabled",
+						inline: true
 					}]
 				})]
 			});
