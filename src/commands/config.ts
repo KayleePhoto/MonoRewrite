@@ -35,8 +35,8 @@ module.exports = {
 								.setRequired(false)
 						)
 				).addSubcommand(scommand =>
-					scommand.setName("test")
-						.setDescription("Test Description")
+					scommand.setName("list")
+						.setDescription("List all current enabled and disabled games.")
 				)
 		).setDMPermission(false).setDefaultMemberPermissions(
 			PermissionFlagsBits.KickMembers + PermissionFlagsBits.BanMembers
@@ -45,14 +45,13 @@ module.exports = {
 	async execute(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 		const subCommand = i.options.getSubcommand();
 
+		const config	= await serverConfig(i, c) as Config;
 		if (subCommand == "killing-game") {
-		// TODO: Make boolean option for enable or disable
 			const enabled	= i.options.getBoolean("game-enable") as boolean;
 			const role	= i.options.getRole("game-role");
 			const channel	= i.options.getChannel("channel");
 			let ping	= i.options.getBoolean("enable-ping");
 			let motives	= i.options.getBoolean("enable-motives");
-			const config	= await serverConfig(i, c) as Config;
 
 			if (channel?.type !== ChannelType.GuildText) {
 				return i.reply({
@@ -62,12 +61,29 @@ module.exports = {
 			if (motives == null) { motives = true; }
 			if (ping == null) { ping = true; }
 			return await KillingGame(channel, enabled, ping, motives, role, i, config);
+		} else if (subCommand == "list") {
+			return i.reply({
+				embeds: [new EmbedBuilder({
+					title: "The current list of games",
+					// ? Create function to loop through and list all current games with their own special fields.
+					// Killing game		Card game
+					//   Enabled		Disabled
+					// Extra game
+					//  Disabled
+
+					// * This currently, ? are placeholder for if card game was there
+					// ? Remove game from listing? as there will never be duplicates???
+					// Enabled Games
+					// ["killing-game" ?, "card-game" ?]
+					fields: [{
+						name: "Enabled Games",
+						value: config["dataValues"].enabledGames,
+					}]
+				})]
+			});
 		}
 
-		
-		return console.log("No subcommand");
-
-		
+		return console.log("No subcommand");		
 	}
 };
 
@@ -82,10 +98,10 @@ async function KillingGame(
 ) {
 	const games = config["dataValues"].enabledGames;
 	let gameEnabled = false;
-	if (config["dataValues"].enabledGames.includes("killing-game")) {
+	if (games.includes("killing-game")) {
 		gameEnabled = true;
 	}
-	// ! Why does this not update enabledGames
+	
 	await config.update({
 		channel: channel.id,
 		role: role?.id,
