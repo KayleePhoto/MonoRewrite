@@ -101,9 +101,6 @@ async function KillingGame(
 	if (!games.includes("killing-game") && enabled == true) {
 		gameEnabled = true;
 	}
-	// Create if statement to handle disable with game previously enabled.
-	// Set the game to disabled, delete from list and update database.
-	// TODO: ["killing-game", "card-game"] ==> ["card-game"]
 
 	await config.update({
 		channel: channel.id,
