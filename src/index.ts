@@ -28,18 +28,18 @@ client.on(Events.InteractionCreate, async interaction => {
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) return;
 
+	// Find__ used to create users, probably best to not do it, on every message for resources.
+	// However, it helps prevent the user from not existing in the DB.
+	// May change later, depending on how I feel about commands and interactions with other users.
 	const config = await serverConfig(interaction, client) as Config;
 	await findUser(interaction, client, { id: interaction.user.id });
 	
 	// * Motivation Timers
-	// TODO: Make JSON array "enabledGames" in DB
 	if (config["dataValues"].enabledGames.includes("killing-game")) {
 		await findKiller(interaction, client, { id: interaction.user.id });
 		if (config["dataValues"].motives == true) {
 			await TimerMotivations(interaction, client);
 		}
-	} else {
-		console.log("No games enabled!");
 	}
 
 	try {

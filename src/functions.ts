@@ -146,19 +146,22 @@ export function sortRandomImages(imgpath: string): string {
 	return images[Math.floor(Math.random() * images.length)];
 }
 
-// ? 24hours without killing motivation.
 export async function TimerMotivations(i: ChatInputCommandInteraction<CacheType>, c: Client) {
 	const config = await serverConfig(i, c) as Config;
 	const iTime = i.createdAt;
 	const diff = config["dataValues"].timer - iTime.getHours();
+	// Motives is guaranteed to be true, no need for a check.
 
-	if (config["dataValues"].motives == true && diff == 24) {
+	// ? 24 hours without killing motivation.
+	if (diff == 24) {
 		const gameChannel = i.guild?.channels.cache.get(config["dataValues"].channel) as TextChannel;
+		// TODO: Create loop to handle coin removal
 		return gameChannel.send({
 			content: `It has been ${diff} hours since the last killing, everyone forfeits 100 coins!`,
 			files: [new AttachmentBuilder("build/resources/timers/timer.gif")]
 		});
 	}
+	// TODO: Starvation: use 24 hour timer to handle 1 hour changes? May be easier to just use another timestamp value in DB.
 	return null;
 }
 // ? Starvation

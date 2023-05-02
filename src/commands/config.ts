@@ -46,6 +46,7 @@ module.exports = {
 		const subCommand = i.options.getSubcommand();
 		const config	 = await serverConfig(i, c) as Config;
 
+		// TODO: See about converting to switch, however not important.
 		if (subCommand == "killing") {
 			const 	enabled	= i.options.getBoolean("game-enable") as boolean;
 			const 	role	= i.options.getRole("game-role");
@@ -68,7 +69,6 @@ module.exports = {
 					title: "The current list of games",
 					// Killing game		Card game
 					//   Enabled		Disabled
-					// ? Remove "-game" from listing? as there will never be duplicates???
 					// TODO: Make separate function to reduce similar code here? | Not priority
 					fields: [{
 						name: "Killing Game",
@@ -98,16 +98,16 @@ async function KillingGame(
 ) {
 	const games = config["dataValues"].enabledGames;
 	let gameEnabled = false;
-	if (games.includes("killing-game")) {
+	if (!games.includes("killing-game") && enabled == true) {
 		gameEnabled = true;
 	}
-	
+
 	await config.update({
 		channel: channel.id,
 		role: role?.id,
 		pingable: ping,
 		motives: motives,
-		enabledGames: gameEnabled ? games : [...games, "killing-game"]
+		enabledGames: gameEnabled ? [...games, "killing-game"] : games.splice(games.indexOf("killing-game"), 1)
 	});
 
 	return await i.reply({

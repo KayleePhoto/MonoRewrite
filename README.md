@@ -19,10 +19,16 @@ Don't ever use git in command line. I made two commits by accident and it aggriv
 # Current Work List
 - Config Command
 	- Proper compatibility with other games
-	- Including the Database.
+	- Create-__ cases for enable game buttons.
+		- Need to test, permissions setup to allow config enabled users to see the enable buttons.
 - Killing Game
+	- Motives
+		- Need testing for 24 hour before working on more.
+		- Motive timer coin removal.
+		- Starvation
+			- Figure out how to handle the timer.
 	- Selectable punishment settings
-		- the annoying task of getting user ids before finished the killing game for punishments.
+		- Owner selects coin amount revoked from things like starvation?
 - Different Games
 	- Card collecting game
 	- More?
@@ -33,7 +39,7 @@ I'M STILL WORKING ON THIS
 
 ---
 
-- Download from [Releases](https://github.com/KayleePhoto/MonoRewrite/releases/) or clone the repo.
+- Download from ~~[Releases](https://github.com/KayleePhoto/MonoRewrite/releases/)~~ or clone the repo.
 - create a `src/secrets/.env`. This will hold all of your secrets.
 	- It is possible to use a different, path. You'll just need to change the config path in files.  
 	```basic

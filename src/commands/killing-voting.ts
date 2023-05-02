@@ -95,7 +95,7 @@ module.exports = {
 			});
 			await wait(1000 * 60 * 3);
 
-			// ? To keep votedKillers list for the chart, I label this var, before .update
+			// Only used for chart list.
 			const votedKillers = config["dataValues"].votedKillers;
 			const votedUsers = getMaxNum(votedKillers);
 			let vote: any;
@@ -144,10 +144,7 @@ module.exports = {
 				await gameChannel.send({
 					embeds: [new EmbedBuilder({
 						title: "Sounds like you found the guilty.\nLet\"s give\"em our all!\nIt\"s punishment time!",
-						color: 10038562,
-						image: {
-							url: "attachment://SPOILER_Punishment.gif"
-						}
+						color: 10038562
 					})],
 					files: [new AttachmentBuilder(`build/resources/punishment/${sortRandomImages("punishment")}`, { name: "SPOILER_Punishment.gif" })]
 				});
