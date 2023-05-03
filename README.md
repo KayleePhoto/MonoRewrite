@@ -29,10 +29,11 @@ Don't ever use git in command line. I made two commits by accident and it aggriv
 			- Figure out how to handle the timer.
 	- Selectable punishment settings
 		- Owner selects coin amount revoked from things like starvation?
-	- Check to see if disable works.
 - Different Games
 	- Card collecting game
 	- More?
+- Stats Command
+	- Make button components dynamically created.
 # How To Setup
 **THIS IS NOT COMPLETE.**  
 I'M STILL WORKING ON THIS

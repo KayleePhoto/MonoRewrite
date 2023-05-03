@@ -97,17 +97,16 @@ async function KillingGame(
 	config: Config
 ) {
 	const games = config["dataValues"].enabledGames;
-	let gameEnabled = false;
-	if (!games.includes("killing-game") && enabled == true) {
-		gameEnabled = true;
-	}
-
+	// Remove game from list, to readd later if needed.
+	// Mainly done so I do not have a check for the existence of killing-game in the list and it not running code the way I want.
+	games.splice(games.indexOf("killing-game"), 1);
 	await config.update({
 		channel: channel.id,
 		role: role?.id,
 		pingable: ping,
 		motives: motives,
-		enabledGames: gameEnabled ? [...games, "killing-game"] : games.splice(games.indexOf("killing-game"), 1)
+		timer: i.createdAt.getTime(),
+		enabledGames: enabled ? [...games, "killing-game"] : (games.length > 0 ? games : [""])
 	});
 
 	return await i.reply({
@@ -130,7 +129,8 @@ async function KillingGame(
 					name: "Motives",
 					value: motives == true ? "Enabled" : "Disabled",
 					inline: true
-				}]
+				}],
+				footer: { text: "Running this command will reset the timer for motives." }
 			})
 		]
 	});

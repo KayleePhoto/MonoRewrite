@@ -42,6 +42,10 @@ Config.init({
 		defaultValue: 0,
 		allowNull: false
 	},
+	timer: {
+		type: DataTypes.BIGINT,
+		allowNull: true
+	},
 	votedKillers: {
 		type: DataTypes.JSON,
 		allowNull: true
